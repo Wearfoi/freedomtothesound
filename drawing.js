@@ -23,72 +23,61 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = canvas.getContext('2d');
     const particles = [];
     const particleSize = 4;
-
-    // Drawing state
     let isDrawing = false;
 
+    // AUDIO UNLOCK LOGIC
+    function startMusic() {
+        const audio = document.getElementById('bg-audio');
+        if (audio && audio.paused) {
+            audio.play().catch(err => console.log("Audio waiting for interaction"));
+        }
+    }
+
+    function disableSelection() {
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitUserSelect = 'none';
+    }
+    
+    function enableSelection() {
+        document.body.style.userSelect = 'auto';
+        document.body.style.webkitUserSelect = 'auto';
+    }
+
     // Mouse events
-    document.addEventListener('mousedown', () => isDrawing = true);
-    document.addEventListener('mouseup', () => isDrawing = false);
+    document.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        disableSelection();
+        startMusic(); // Starts music on click
+        addParticles(e.clientX, e.clientY);
+    });
+    document.addEventListener('mouseup', () => {
+        isDrawing = false;
+        enableSelection();
+    });
     document.addEventListener('mousemove', (e) => {
         if (isDrawing) addParticles(e.clientX, e.clientY);
     });
 
-    // Touch events (for mobile)
+    // Touch events
     document.addEventListener('touchstart', (e) => {
         isDrawing = true;
+        disableSelection();
+        startMusic(); // Starts music on touch
         const touch = e.touches[0];
         addParticles(touch.clientX, touch.clientY);
     });
-    document.addEventListener('touchend', () => isDrawing = false);
+    document.addEventListener('touchend', () => {
+        isDrawing = false;
+        enableSelection();
+    });
     document.addEventListener('touchmove', (e) => {
         if (isDrawing) {
             const touch = e.touches[0];
             addParticles(touch.clientX, touch.clientY);
             e.preventDefault();
         }
-    });
+    }, { passive: false });
 
-    document.addEventListener('DOMContentLoaded', function() {
-    // Add class to body when drawing starts
-    function disableSelection() {
-        document.body.classList.add('no-selection');
-    }
-    
-    // Remove class when drawing ends
-    function enableSelection() {
-        document.body.classList.remove('no-selection');
-    }
-
-    // Update your event listeners:
-    document.addEventListener('mousedown', function(e) {
-        isDrawing = true;
-        disableSelection();
-        addParticles(e.clientX, e.clientY);
-    });
-    
-    document.addEventListener('mouseup', function() {
-        isDrawing = false;
-        enableSelection();
-    });
-    
-    // Same for touch events
-    document.addEventListener('touchstart', function(e) {
-        isDrawing = true;
-        disableSelection();
-        const touch = e.touches[0];
-        addParticles(touch.clientX, touch.clientY);
-    });
-    
-    document.addEventListener('touchend', function() {
-        isDrawing = false;
-        enableSelection();
-    });
-
-    // ... rest of your existing drawing code ...
-});
-
-    // Add particles
     function addParticles(x, y) {
         for (let i = 0; i < 5; i++) {
             particles.push({
@@ -101,36 +90,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Animation loop
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const now = Date.now();
 
         particles.forEach((p, i) => {
             const age = (now - p.createdAt) / 1000;
-            if (age > 5) particles.splice(i, 1);
-            else {
+            if (age > 5) {
+                particles.splice(i, 1);
+            } else {
                 p.alpha = 1 - (age / 4);
+                // Drawing color set to Black
                 ctx.fillStyle = `rgba(0, 0, 0, ${p.alpha})`;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fill();
             }
         });
-
         requestAnimationFrame(animate);
     }
 
     animate();
-
-document.addEventListener('mousedown', function() {
-    const audio = document.getElementById('bg-audio');
-    if (audio) audio.play();
-}, { once: true });
-
-document.addEventListener('touchstart', function() {
-    const audio = document.getElementById('bg-audio');
-    if (audio) audio.play();
-}, { once: true });
-
 });
