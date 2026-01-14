@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>freedomtothesound</title>
+    <script>
+        /* Automatically removes /index.html from the browser address bar */
+        if (window.location.pathname.endsWith('/index.html')) {
+            const newPath = window.location.pathname.replace(/\/index\.html$/, '/');
+            window.history.replaceState(null, '', newPath + window.location.search);
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -31,40 +38,29 @@
         
         .bandcamp-wrapper {
             width: 100%;
-            /* Updated to match new iframe width */
             max-width: 474px;
             margin: 0 auto;
         }
         
         .bandcamp-embed {
             width: 100%;
-            /* Updated aspect ratio for new iframe size (474x594) */
-            aspect-ratio: 474/594;
+            /* Height increased to accommodate the tracklist */
+            height: 700px;
             border: 0;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
         
-        /* Responsive adjustments */
         @media (max-width: 520px) {
             .container {
                 padding: 15px;
             }
-            
             .bandcamp-wrapper {
                 max-width: 100%;
             }
-            
             .bandcamp-embed {
                 border-radius: 6px;
-            }
-        }
-        
-        /* For very small screens */
-        @media (max-width: 380px) {
-            body {
-                align-items: flex-start;
-                padding-top: 15px;
+                height: 600px;
             }
         }
     </style>
@@ -72,10 +68,9 @@
 <body>
     <div class="container">
         <div class="bandcamp-wrapper">
-            <!-- Bandcamp embed with updated dimensions -->
             <iframe 
                 class="bandcamp-embed"
-                src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=false/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" 
+                src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" 
                 seamless>
                 <a href="https://wearfoi.bandcamp.com/album/ralkalico">RalKalico by Wearfoi</a>
             </iframe>
