@@ -56,7 +56,6 @@
             
             const boardWidth = window.innerWidth;
             const boardHeight = window.innerHeight;
-            // Dynamically calculates based on current CSS width
             const logoWidth = logo.offsetWidth;
             const logoHeight = logo.offsetHeight;
 
@@ -123,13 +122,13 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 250px; /* Increased size */
+            width: 250px;
             height: auto;
             z-index: -1;
             pointer-events: none;
             will-change: transform;
             transform: translate(0, 0) rotate(0deg);
-            filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.08)); /* Logo drop shadow */
+            filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.08));
         }
         
         .text-style {
@@ -139,7 +138,7 @@
             color: #1a1a1a;
             width: 100%;
             z-index: 1;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05); /* Text drop shadow */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         #countdown { padding-top: 50px; font-variant-numeric: tabular-nums; }
@@ -169,17 +168,17 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
         
-        /* Mobile Adjustments */
         @media (max-width: 600px) {
-            .text-style { font-size: 2.2rem; } /* Increased mobile font size */
+            .text-style { font-size: 2.2rem; }
             #countdown { padding-top: 30px; }
             .footer-text { padding-bottom: 30px; }
             .bandcamp-embed { height: 600px; }
-            #bouncing-logo { width: 120px; } /* Adjusted mobile logo size */
+            #bouncing-logo { width: 120px; }
         }
     </style>
 </head>
 <body>
+    <audio id="bg-audio" src="waiting-room.wav" autoplay loop></audio>
 
     <img src="logo.png" id="bouncing-logo" alt="Logo">
 
@@ -201,6 +200,5 @@
     </div>
 
     <script src="drawing.js"></script>
-
 </body>
 </html>

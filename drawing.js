@@ -123,4 +123,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     animate();
 
+document.addEventListener('mousedown', function() {
+    const audio = document.getElementById('bg-audio');
+    if (audio) audio.play();
+}, { once: true });
+
+document.addEventListener('touchstart', function() {
+    const audio = document.getElementById('bg-audio');
+    if (audio) audio.play();
+}, { once: true });
+
 });
