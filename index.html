@@ -56,8 +56,9 @@
             
             const boardWidth = window.innerWidth;
             const boardHeight = window.innerHeight;
-            const logoWidth = logo.offsetWidth || 150;
-            const logoHeight = logo.offsetHeight || 150;
+            // Updated to fetch dynamic size so it bounces correctly at 250px
+            const logoWidth = logo.offsetWidth;
+            const logoHeight = logo.offsetHeight;
 
             x += xSpeed;
             y += ySpeed;
@@ -92,8 +93,8 @@
             window.addEventListener('resize', function() {
                 const logo = document.getElementById('bouncing-logo');
                 if (logo) {
-                    x = Math.min(x, window.innerWidth - (logo.offsetWidth || 150));
-                    y = Math.min(y, window.innerHeight - (logo.offsetHeight || 150));
+                    x = Math.min(x, window.innerWidth - logo.offsetWidth);
+                    y = Math.min(y, window.innerHeight - logo.offsetHeight);
                 }
             });
         });
@@ -122,13 +123,13 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 150px;
+            /* Increased size to 250px as requested */
+            width: 250px;
             height: auto;
             z-index: -1;
             pointer-events: none;
             will-change: transform;
             transform: translate(0, 0) rotate(0deg);
-            /* Added drop shadow to logo shape */
             filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.08));
         }
         
@@ -139,7 +140,6 @@
             color: #1a1a1a;
             width: 100%;
             z-index: 1;
-            /* Added text drop shadow */
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
         }
 
@@ -175,7 +175,8 @@
             #countdown { padding-top: 30px; }
             .footer-text { padding-bottom: 30px; }
             .bandcamp-embed { height: 600px; }
-            #bouncing-logo { width: 80px; }
+            /* Adjusted mobile size slightly for the bigger logo */
+            #bouncing-logo { width: 120px; }
         }
     </style>
 </head>
