@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freedom to the Sound</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .bandcamp-wrapper {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .bandcamp-embed {
+            width: 100%;
+            aspect-ratio: 400/836;
+            border: 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 440px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .bandcamp-wrapper {
+                max-width: 100%;
+            }
+            
+            .bandcamp-embed {
+                border-radius: 4px;
+            }
+        }
+        
+        /* For very small screens */
+        @media (max-width: 360px) {
+            body {
+                align-items: flex-start;
+                padding-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="bandcamp-wrapper">
+            <iframe 
+                class="bandcamp-embed"
+                src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=3921642269,63517934,11306431,3235538834,2671567827,3163946087,844726674,3762106958,3787934444,664858977,2509556201,709062393,3192843854,790976255/esig=1d9a722c73bd9329e6adf2e391855afd/" 
+                seamless>
+                <a href="https://wearfoi.bandcamp.com/album/ralkalico">RalKalico by Wearfoi</a>
+            </iframe>
+        </div>
+    </div>
+</body>
+</html>
