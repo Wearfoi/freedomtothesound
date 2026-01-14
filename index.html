@@ -7,10 +7,46 @@
     <link rel="icon" type="image/png" href="logo.png">
     
     <script>
+        /* URL Cleaner */
         if (window.location.pathname.endsWith('/index.html')) {
             const newPath = window.location.pathname.replace(/\/index\.html$/, '/');
             window.history.replaceState(null, '', newPath + window.location.search);
         }
+
+        /* Fully Compatible Countdown Script */
+        function updateCountdown() {
+            // Target: Jan 22, 2026 00:00:00 EST
+            // Using ISO 8601 format for maximum browser compatibility
+            const targetDate = new Date("2026-01-22T00:00:00-05:00").getTime();
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            const element = document.getElementById("countdown");
+
+            if (distance < 0) {
+                element.innerHTML = "00:00:00:00";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Force 2 digits
+            const d = String(days).padStart(2, '0');
+            const h = String(hours).padStart(2, '0');
+            const m = String(minutes).padStart(2, '0');
+            const s = String(seconds).padStart(2, '0');
+
+            element.innerHTML = d + ":" + h + ":" + m + ":" + s;
+        }
+
+        // Start timer
+        setInterval(updateCountdown, 1000);
+
+        // Run immediately on load
+        window.addEventListener('load', updateCountdown);
     </script>
     <style>
         * {
@@ -20,70 +56,67 @@
         }
         
         body {
-            background: #ffffff;
+            background-color: #f8f8f8;
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* Stack header, player, and footer */
-            justify-content: center;
+            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1a1a1a;
             text-align: center;
         }
         
-        header, footer {
-            padding: 20px;
+        #countdown {
+            padding-top: 50px;
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
             width: 100%;
-            font-weight: 500;
-            letter-spacing: 1px;
-        }
-
-        header {
-            font-size: 1.2rem;
-            text-transform: uppercase;
-        }
-
-        footer {
-            font-size: 0.9rem;
-            color: #666;
         }
         
         .container {
             width: 100%;
-            max-width: 1200px;
-            padding: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px 0;
+            flex-grow: 1;
         }
         
         .bandcamp-wrapper {
             width: 100%;
             max-width: 474px;
-            margin: 0 auto;
+            padding: 0 20px;
         }
         
         .bandcamp-embed {
             width: 100%;
             height: 700px;
             border: 0;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
         
-        @media (max-width: 520px) {
-            header { font-size: 1rem; }
-            .bandcamp-embed {
-                height: 600px;
-            }
+        .footer-text {
+            padding-bottom: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: 0.05em;
+        }
+        
+        @media (max-width: 600px) {
+            #countdown { font-size: 1.8rem; padding-top: 30px; }
+            .bandcamp-embed { height: 600px; }
+            .footer-text { font-size: 1rem; padding-bottom: 30px; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        RalKalico Country 20th Anniversary
-    </header>
+    <div id="countdown">Calculating...</div>
 
     <div class="container">
         <div class="bandcamp-wrapper">
@@ -96,9 +129,9 @@
         </div>
     </div>
 
-    <footer>
+    <div class="footer-text">
         January 22nd 2006
-    </footer>
+    </div>
 
 </body>
 </html>
