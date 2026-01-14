@@ -56,7 +56,7 @@
             
             const boardWidth = window.innerWidth;
             const boardHeight = window.innerHeight;
-            // Updated to fetch dynamic size so it bounces correctly at 250px
+            // Dynamically calculates based on current CSS width
             const logoWidth = logo.offsetWidth;
             const logoHeight = logo.offsetHeight;
 
@@ -123,14 +123,13 @@
             position: fixed;
             top: 0;
             left: 0;
-            /* Increased size to 250px as requested */
-            width: 250px;
+            width: 250px; /* Increased size */
             height: auto;
             z-index: -1;
             pointer-events: none;
             will-change: transform;
             transform: translate(0, 0) rotate(0deg);
-            filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.08));
+            filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.08)); /* Logo drop shadow */
         }
         
         .text-style {
@@ -140,7 +139,7 @@
             color: #1a1a1a;
             width: 100%;
             z-index: 1;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05); /* Text drop shadow */
         }
 
         #countdown { padding-top: 50px; font-variant-numeric: tabular-nums; }
@@ -170,13 +169,13 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
         
+        /* Mobile Adjustments */
         @media (max-width: 600px) {
-            .text-style { font-size: 1.5rem; }
+            .text-style { font-size: 2.2rem; } /* Increased mobile font size */
             #countdown { padding-top: 30px; }
             .footer-text { padding-bottom: 30px; }
             .bandcamp-embed { height: 600px; }
-            /* Adjusted mobile size slightly for the bigger logo */
-            #bouncing-logo { width: 120px; }
+            #bouncing-logo { width: 120px; } /* Adjusted mobile logo size */
         }
     </style>
 </head>
@@ -201,7 +200,7 @@
         January 22nd
     </div>
 
-<script src="drawing.js"></script>
+    <script src="drawing.js"></script>
 
 </body>
 </html>
