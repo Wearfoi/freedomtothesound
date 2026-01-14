@@ -13,10 +13,9 @@
             window.history.replaceState(null, '', newPath + window.location.search);
         }
 
-        /* Fully Compatible Countdown Script */
+        /* Countdown Script */
         function updateCountdown() {
             // Target: Jan 22, 2026 00:00:00 EST
-            // Using ISO 8601 format for maximum browser compatibility
             const targetDate = new Date("2026-01-22T00:00:00-05:00").getTime();
             const now = new Date().getTime();
             const distance = targetDate - now;
@@ -33,7 +32,6 @@
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            // Force 2 digits
             const d = String(days).padStart(2, '0');
             const h = String(hours).padStart(2, '0');
             const m = String(minutes).padStart(2, '0');
@@ -42,10 +40,7 @@
             element.innerHTML = d + ":" + h + ":" + m + ":" + s;
         }
 
-        // Start timer
         setInterval(updateCountdown, 1000);
-
-        // Run immediately on load
         window.addEventListener('load', updateCountdown);
     </script>
     <style>
@@ -62,6 +57,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
+            /* Footer and Countdown now share this font stack */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #1a1a1a;
             text-align: center;
@@ -69,11 +65,12 @@
         
         #countdown {
             padding-top: 50px;
-            font-family: 'Courier New', Courier, monospace; 
             font-size: 3rem;
             font-weight: 900;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
             width: 100%;
+            /* This keeps the numbers from jumping around */
+            font-variant-numeric: tabular-nums;
         }
         
         .container {
@@ -108,7 +105,7 @@
         }
         
         @media (max-width: 600px) {
-            #countdown { font-size: 1.8rem; padding-top: 30px; }
+            #countdown { font-size: 2.2rem; padding-top: 30px; }
             .bandcamp-embed { height: 600px; }
             .footer-text { font-size: 1rem; padding-bottom: 30px; }
         }
@@ -116,7 +113,7 @@
 </head>
 <body>
 
-    <div id="countdown">Calculating...</div>
+    <div id="countdown">Freeing...</div>
 
     <div class="container">
         <div class="bandcamp-wrapper">
@@ -130,7 +127,7 @@
     </div>
 
     <div class="footer-text">
-        January 22nd 2006
+        January 22nd 2026
     </div>
 
 </body>
