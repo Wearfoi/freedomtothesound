@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>47.7 freedomtothesound</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Mobile-specific meta tags -->
+    <meta name="theme-color" content="#FEE5A6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        /* Base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Trebuchet MS", Trebuchet, sans-serif;
+            background: #ffffff;
+            color: #d52b1e;
+            transition: background-color 0.3s ease;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+          /* Add these styles for drawing mode */
+    body.no-selection * {
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        cursor: default !important;
+    }
+    
+    /* Allow selection for specific elements that need it */
+    .song-title, .song-artist, .song-album,
+    .history-item-title, .history-item-artist, .history-item-album {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+    }
+        
+        body.dark-mode {
+            background: #000000;
+            color: #d52b1e;
+        }
+        
+        /* Header styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background:#ffffff;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: 40px;
+            overflow: hidden;
+        }
+        
+        body.dark-mode .header {
+            background: #000000;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            height: 40px;
+            animation: spin 5s linear infinite;
+            z-index: 1001;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Dark mode toggle style */
+        .dark-mode-toggle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #333;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+            z-index: 1001;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        body.dark-mode .dark-mode-toggle {
+            background: #fff;
+        }
+
+        /* Scrolling text styles */
+        .scrolling-container {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .scrolling-text {
+            white-space: nowrap;
+            position: absolute;
+            will-change: transform;
+        }
+
+        .scrolling-text p {
+            font-size: 1em;
+            font-weight: bold;
+            margin: 0;
+            line-height: 40px;
+            display: inline-block;
+            padding-right: 2em;
+        }
+
+        .header-scroll {
+            animation: RightToLeft 60s infinite linear;
+            padding-left: 50px;
+        }
+
+        .header-scroll p {
+            color: #d52b1e; /* Orange color for scrolling header text */
+        }
+
+        body.dark-mode .header-scroll p {
+            color: #d52b1e; /* Keep orange in dark mode */
+        }
+
+        .footer-scroll {
+            animation: LeftToRight 40s infinite linear;
+            padding-left: 0;
+        }
+
+        @keyframes RightToLeft {
+            from {
+                transform: translateX(0%);
+            }
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        @keyframes LeftToRight {
+            from {
+                transform: translateX(-50%);
+            }
+            to {
+                transform: translateX(0%);
+            }
+        }
+
+        /* Main container */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 65px 10px 60px;
+            box-sizing: border-box;
+        }
+
+        /* Radio container */
+        .radio-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Cover art styling */
+        .cover-art {
+            display: block;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 0px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .cover-art:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Custom player styling */
+        .custom-player {
+            width: 100%;
+            background: transparent;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 0px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            width: 100%;
+            position: relative;
+        }
+        
+        /* Play button style */
+        .play-btn {
+            width: 30px;
+            height: 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            padding: 0;
+            color: #666;
+        }
+        
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        body.dark-mode .play-btn {
+            color: #aaa;
+        }
+        
+        .player-info {
+            flex-grow: 1;
+            text-align: center;
+            overflow: hidden;
+            padding: 0 10px;
+        }
+        
+        .song-title {
+            font-weight: bold;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: inherit; /* Keep default color (white in dark mode) */
+        }
+        
+        .song-artist {
+            font-size: 0.9em;
+            color: #18ff00;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .song-album {
+            font-size: 0.8em;
+            color: #d52b1e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 3px;
+        }
+        
+        body.dark-mode .song-artist {
+            color: #18ff00;
+        }
+        body.dark-mode .song-album {
+            color: #d52b1e;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body.dark-mode .progress-container {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #18ff00;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.05s linear;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.8em;
+            margin-top: 5px;
+            color: #666;
+        }
+        
+        body.dark-mode .time-display {
+            color: #aaa;
+        }
+        
+        /* Volume controls */
+        .volume-control {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .volume-btn {
+            width: 30px;
+            height: 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            padding: 0;
+            color: #666;
+        }
+        
+        .volume-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .volume-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+        
+        body.dark-mode .volume-btn {
+            color: #aaa;
+        }
+        
+        .volume-slider-container {
+            position: absolute;
+            left: 50%;
+            bottom: 100%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 120px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            padding: 15px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        body.dark-mode .volume-slider-container {
+            background: rgba(40,40,40,0.9);
+        }
+        
+        .volume-control:hover .volume-slider-container,
+        .volume-slider-container.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .volume-slider {
+            -webkit-appearance: slider-vertical;
+            width: 100px;
+            height: 100%;
+            min-height: 100px;
+            margin: 0;
+            padding: 0;
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            appearance: slider-vertical;
+            background: transparent;
+        }
+        
+        /* History section */
+        .history-container {
+            width: 100%;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        body.dark-mode .history-container {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .history-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #444;
+        }
+        
+        body.dark-mode .history-title {
+            color: #aaa;
+        }
+        
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        body.dark-mode .history-item {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-item-art {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .history-item-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        
+        .history-item-title {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .history-item-artist {
+            font-size: 0.8em;
+            color: #18ff00;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .history-item-album {
+            font-size: 0.8em;
+            color: #d52b1e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-left: 5px;
+        }
+        
+        body.dark-mode .history-item-artist {
+            color: #18ff00;
+        }
+        body.dark-mode .history-item-album {
+            color: #d52b1e;
+        }
+        
+        .history-item-time {
+            font-size: 0.8em;
+            color: #888;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+        
+        /* Footer styles */
+        .footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            z-index: 1000;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            height: 40px;
+            overflow: hidden;
+        }
+        
+        body.dark-mode .footer {
+            background: #000000;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 480px) {
+            .cover-art {
+                width: 270px;
+                height: 270px;
+            }
+            
+            .player-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .play-btn {
+                margin-bottom: 10px;
+            }
+            
+            .volume-slider-container {
+                left: auto;
+                right: 0;
+                transform: none;
+                height: 150px;
+                padding: 15px 8px;
+            }
+            
+            .volume-slider {
+                width: 100%;
+                height: 100%;
+                min-height: 120px;
+            }
+            
+            .history-container {
+                max-height: 300px;
+            }
+            
+            .history-list {
+                max-height: 250px;
+            }
+            
+            .header, .footer {
+                padding: 10px 13px;
+            }
+
+            .header-scroll {
+                padding-left: 40px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header with logo and scrolling text -->
+    <div class="header">
+        <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo">
+        </a>
+        <div class="scrolling-container">
+            <div class="scrolling-text header-scroll" id="header-scroll">
+                <p>Loading song information... • Loading song information... • Loading song information... • Loading song information... • Loading song information... • Loading song information... • Loading song information... • Loading song information... • Loading song information... • Loading song information... • Loading song information... • Loading song information...</p>
+            </div>
+        </div>
+        <button id="dark-mode-toggle" class="dark-mode-toggle"></button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="radio-container">
+            <!-- Cover Art -->
+            <img id="cover-art" class="cover-art" src="https://via.placeholder.com/200" alt="Now Playing">
+            
+            <!-- Custom Player -->
+            <div class="custom-player">
+                <div class="player-controls">
+                    <button id="play-btn" class="play-btn">
+                        <svg class="volume-icon" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                    <div class="player-info">
+                        <div id="song-title" class="song-title">47.7 freedomtothesound</div>
+                        <div id="song-artist" class="song-artist">Click play to start listening</div>
+                        <div id="song-album" class="song-album"></div>
+                    </div>
+                    <div class="volume-control">
+                        <button id="volume-btn" class="volume-btn">
+                            <svg class="volume-icon" viewBox="0 0 24 24">
+                                <path class="volume-icon-base" d="M3 15V9H7L12 4V20L7 15H3Z"/>
+                                <path class="volume-icon-low" d="M16.5 12C16.5 10.23 15.48 8.71 14 7.97V16.02C15.48 15.29 16.5 13.77 16.5 12Z"/>
+                                <path class="volume-icon-high" d="M14 3.23V5.29C16.89 6.15 19 8.83 19 12C19 15.17 16.89 17.85 14 18.71V20.77C18.01 19.86 21 16.28 21 12C21 7.72 18.01 4.14 14 3.23Z"/>
+                            </svg>
+                        </button>
+                        <div class="volume-slider-container" id="volume-slider-container">
+                            <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.01" value="0.8" orient="vertical">
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="time-display">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+            
+            <!-- Custom History Section -->
+            <div class="history-container">
+                <div class="history-title">Recently Played</div>
+                <div class="history-list" id="history-list">
+                    <div class="history-item loading">
+                        <img class="history-item-art" src="https://via.placeholder.com/40" alt="Loading">
+                        <div class="history-item-info">
+                            <div class="history-item-title">Loading history...</div>
+                            <div class="history-item-artist">Please wait</div>
+                        </div>
+                        <div class="history-item-time">--:--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with scrolling text -->
+    <div class="footer">
+        <div class="scrolling-container">
+            <div class="scrolling-text footer-scroll">
+                <p>47.7 freedomtothesound • 24/7 live radio • Freeing the sounds of freedomtothesound artists and friends • Hosted by Wearfoi • 47.7 freedomtothesound • 24/7 live radio • Freeing the sounds of freedomtothesound artists and friends • Hosted by Wearfoi • 47.7 freedomtothesound • 24/7 live radio • Freeing the sounds of freedomtothesound artists and friends • Hosted by Wearfoi • 47.7 freedomtothesound • 24/7 live radio • Freeing the sounds of freedomtothesound artists and friends • Hosted by Wearfoi • 47.7 freedomtothesound • 24/7 live radio • Freeing the sounds of freedomtothesound artists and friends • Hosted by Wearfoi</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Player elements
+        const playBtn = document.getElementById('play-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        const songTitleEl = document.getElementById('song-title');
+        const songArtistEl = document.getElementById('song-artist');
+        const songAlbumEl = document.getElementById('song-album');
+        const volumeBtn = document.getElementById('volume-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeSliderContainer = document.getElementById('volume-slider-container');
+        const historyList = document.getElementById('history-list');
+        const coverArt = document.getElementById('cover-art');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const body = document.body;
+        const headerScroll = document.getElementById('header-scroll');
+        
+        // Audio player with improved configuration
+        let audio = new Audio();
+        audio.crossOrigin = "anonymous";
+        audio.preload = 'none';
+        audio.autoplay = false;
+        audio.src = 'https://radio.wearfoi.com/radio/8000/radio.mp3?_=' + Date.now();
+        
+        // Player state
+        let isPlaying = false;
+        let currentSongId = null;
+        let updateInterval;
+        let songStartTime = 0;
+        let songDuration = 0;
+        let lastUpdateTime = 0;
+        let retryCount = 0;
+        const maxRetries = 5;
+        const maxHistoryItems = 20;
+        let previousVolume = 0.8;
+        let isMuted = false;
+        let isVolumeDragging = false;
+        let historyData = [];
+        let isFirstPlay = true;
+        let volumeHideTimeout;
+        let lastSongUpdate = 0;
+        let audioRefreshInterval;
+        let audioBuffer = null;
+        let animationFrameId = null;
+
+        // Initialize dark mode
+        function initDarkMode() {
+            const isDark = localStorage.getItem('dark-mode') === 'enabled';
+            body.classList.toggle('dark-mode', isDark);
+            darkModeToggle.style.background = isDark ? '#fff' : '#333';
+        }
+
+        // Format time (seconds to MM:SS)
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // Format time ago for history
+        function formatTimeAgo(timestamp) {
+            const now = Math.floor(Date.now() / 1000);
+            const diff = now - timestamp;
+            
+            if (diff < 60) {
+                return "Just now";
+            } else if (diff < 3600) {
+                const minutes = Math.floor(diff / 60);
+                return `${minutes} min ago`;
+            } else if (diff < 86400) {
+                const hours = Math.floor(diff / 3600);
+                return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+            } else {
+                const days = Math.floor(diff / 86400);
+                return `${days} day${days !== 1 ? 's' : ''} ago`;
+            }
+        }
+
+        // Smooth progress bar update using requestAnimationFrame
+        function updateProgress() {
+            if (!isPlaying || songDuration <= 0) {
+                cancelAnimationFrame(animationFrameId);
+                return;
+            }
+            
+            const now = Date.now();
+            const elapsed = (now - songStartTime) / 1000;
+            const progressPercent = Math.min(100, (elapsed / songDuration) * 100);
+            
+            progressBar.style.width = `${progressPercent}%`;
+            currentTimeEl.textContent = formatTime(elapsed);
+            durationEl.textContent = formatTime(songDuration);
+            lastUpdateTime = now;
+            
+            // Update media session position state
+            if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
+                navigator.mediaSession.setPositionState({
+                    duration: songDuration,
+                    playbackRate: 1,
+                    position: elapsed
+                });
+            }
+            
+            animationFrameId = requestAnimationFrame(updateProgress);
+        }
+
+        // Media Session API setup
+        function setupMediaSession() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setActionHandler('play', () => {
+                    playAudio();
+                });
+                
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    pauseAudio();
+                });
+                
+                navigator.mediaSession.setActionHandler('seekbackward', () => {
+                    // Not applicable for live radio
+                });
+                
+                navigator.mediaSession.setActionHandler('seekforward', () => {
+                    // Not applicable for live radio
+                });
+                
+                navigator.mediaSession.setActionHandler('previoustrack', () => {
+                    // Not applicable for live radio
+                });
+                
+                navigator.mediaSession.setActionHandler('nexttrack', () => {
+                    // Not applicable for live radio
+                });
+            }
+        }
+
+        // Play/pause toggle
+        function togglePlay() {
+            if (isPlaying) {
+                pauseAudio();
+            } else {
+                playAudio();
+            }
+        }
+        
+        function playAudio() {
+            // Handle mobile browser autoplay restrictions
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Audio playback started successfully
+                    isPlaying = true;
+                    playBtn.innerHTML = '<svg class="volume-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+                    
+                    // Update media session playback state
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.playbackState = 'playing';
+                    }
+                    
+                    if (isFirstPlay) {
+                        isFirstPlay = false;
+                        // First play - fetch now playing immediately
+                        fetchNowPlaying(true);
+                    } else {
+                        // Regular play - start smooth progress updates
+                        cancelAnimationFrame(animationFrameId);
+                        updateProgress();
+                    }
+                })
+                .catch(error => {
+                    console.log('Playback failed:', error);
+                    // Show play button since playback failed
+                    isPlaying = false;
+                    playBtn.innerHTML = '<svg class="volume-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+                    
+                    // Try refreshing the audio source
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(refreshAudio, 1000);
+                    } else {
+                        showConnectionError();
+                    }
+                });
+            }
+        }
+        
+        function pauseAudio() {
+            audio.pause();
+            isPlaying = false;
+            playBtn.innerHTML = '<svg class="volume-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            
+            // Update media session playback state
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'paused';
+            }
+            
+            cancelAnimationFrame(animationFrameId);
+        }
+        
+        function showConnectionError() {
+            songTitleEl.textContent = 'Connection Error';
+            songArtistEl.textContent = 'Please refresh page';
+            songAlbumEl.textContent = '';
+            isPlaying = false;
+            playBtn.innerHTML = '<svg class="volume-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        }
+
+        // Refresh audio source with seamless transition
+        function refreshAudio() {
+            if (!isPlaying) return;
+            
+            // Create a new audio element
+            const newAudio = new Audio('https://radio.wearfoi.com/radio/8000/radio.mp3?_=' + Date.now());
+            newAudio.crossOrigin = "anonymous";
+            newAudio.preload = 'none';
+            
+            // Copy properties from old audio
+            newAudio.volume = audio.volume;
+            newAudio.muted = audio.muted;
+            
+            // When new audio is ready, fade transition
+            newAudio.addEventListener('canplay', () => {
+                // Cross-fade between old and new audio
+                const fadeDuration = 500; // 0.5 second fade
+                const startTime = Date.now();
+                
+                const fadeInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(1, elapsed / fadeDuration);
+                    
+                    if (progress >= 1) {
+                        clearInterval(fadeInterval);
+                        // Replace old audio with new one
+                        audio.pause();
+                        audio.src = '';
+                        audio = newAudio;
+                        
+                        if (isPlaying) {
+                            audio.play().catch(e => console.log('Playback resume error:', e));
+                        }
+                    } else {
+                        // Adjust volumes during transition
+                        audio.volume = previousVolume * (1 - progress);
+                        newAudio.volume = previousVolume * progress;
+                    }
+                }, 20);
+                
+                // Start playing new audio (muted, volume will be adjusted in fade)
+                newAudio.volume = 0;
+                newAudio.play().catch(e => console.log('New audio play error:', e));
+            });
+            
+            newAudio.addEventListener('error', (e) => {
+                console.log('Audio refresh error:', e);
+            });
+        }
+
+        // Update volume
+        function updateVolume() {
+            if (!isMuted) {
+                const newVolume = parseFloat(volumeSlider.value);
+                audio.volume = newVolume;
+                previousVolume = newVolume;
+            }
+            
+            // Update volume icon based on level
+            const iconLow = document.querySelector('.volume-icon-low');
+            const iconHigh = document.querySelector('.volume-icon-high');
+            
+            if (audio.volume === 0 || isMuted) {
+                iconLow.style.display = 'none';
+                iconHigh.style.display = 'none';
+            } else if (audio.volume < 0.5) {
+                iconLow.style.display = '';
+                iconHigh.style.display = 'none';
+            } else {
+                iconLow.style.display = '';
+                iconHigh.style.display = '';
+            }
+        }
+
+        // Toggle mute state
+        function toggleMute() {
+            isMuted = !isMuted;
+            
+            if (isMuted) {
+                audio.volume = 0;
+            } else {
+                audio.volume = previousVolume;
+                volumeSlider.value = previousVolume;
+            }
+            
+            updateVolume();
+        }
+
+        // Show volume slider
+        function showVolumeSlider() {
+            clearTimeout(volumeHideTimeout);
+            volumeSliderContainer.classList.add('visible');
+        }
+
+        // Hide volume slider with delay
+        function hideVolumeSlider() {
+            clearTimeout(volumeHideTimeout);
+            volumeHideTimeout = setTimeout(() => {
+                if (!isVolumeDragging) {
+                    volumeSliderContainer.classList.remove('visible');
+                }
+            }, 1000);
+        }
+
+        // Setup volume controls
+        function setupVolumeControls() {
+            // Click/touch handler for volume button
+            volumeBtn.addEventListener('click', (e) => {
+                toggleMute();
+            });
+            
+            // Touch events for volume slider
+            volumeSlider.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+                isVolumeDragging = true;
+                showVolumeSlider();
+            });
+            
+            volumeSlider.addEventListener('touchend', () => {
+                isVolumeDragging = false;
+                hideVolumeSlider();
+            });
+            
+            volumeSlider.addEventListener('touchmove', (e) => {
+                e.stopPropagation();
+                showVolumeSlider();
+            });
+            
+            volumeSlider.addEventListener('input', (e) => {
+                isMuted = false;
+                updateVolume();
+                showVolumeSlider();
+                e.stopPropagation();
+            });
+            
+            // Mouse events for desktop
+            volumeBtn.addEventListener('mouseenter', () => {
+                showVolumeSlider();
+            });
+            
+            volumeBtn.addEventListener('mouseleave', () => {
+                hideVolumeSlider();
+            });
+            
+            volumeSliderContainer.addEventListener('mouseenter', () => {
+                showVolumeSlider();
+            });
+            
+            volumeSliderContainer.addEventListener('mouseleave', () => {
+                hideVolumeSlider();
+            });
+            
+            // Prevent page scroll when adjusting volume
+            volumeSlider.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.05 : 0.05;
+                const newVolume = Math.min(1, Math.max(0, parseFloat(volumeSlider.value) + delta));
+                volumeSlider.value = newVolume;
+                isMuted = false;
+                updateVolume();
+            }, { passive: false });
+            
+            // Hide volume slider when clicking elsewhere
+            document.addEventListener('click', (e) => {
+                if (!volumeSliderContainer.contains(e.target) && e.target !== volumeBtn) {
+                    volumeSliderContainer.classList.remove('visible');
+                }
+            });
+            
+            // Initialize volume
+            audio.volume = 0.8;
+            volumeSlider.value = 0.8;
+            updateVolume();
+        }
+
+        // Create history item element
+        function createHistoryItem(song) {
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            
+            const art = document.createElement('img');
+            art.className = 'history-item-art';
+            art.src = song.art || 'https://via.placeholder.com/40';
+            art.alt = 'Album Art';
+            art.onerror = () => { 
+                art.src = 'https://via.placeholder.com/40';
+                art.style.display = 'block';
+            };
+            
+            const info = document.createElement('div');
+            info.className = 'history-item-info';
+            
+            const title = document.createElement('div');
+            title.className = 'history-item-title';
+            title.textContent = song.title || 'Unknown Track';
+            
+            const artist = document.createElement('div');
+            artist.className = 'history-item-artist';
+            artist.textContent = song.artist || 'Unknown Artist';
+            
+            const album = document.createElement('span');
+            album.className = 'history-item-album';
+            if (song.album) {
+                album.textContent = `• ${song.album}`;
+            }
+            
+            const time = document.createElement('div');
+            time.className = 'history-item-time';
+            time.textContent = formatTimeAgo(song.played_at);
+            
+            info.appendChild(title);
+            info.appendChild(artist);
+            artist.appendChild(album);
+            
+            item.appendChild(art);
+            item.appendChild(info);
+            item.appendChild(time);
+            
+            return item;
+        }
+
+        // Update history list
+        function updateHistory() {
+            historyList.innerHTML = '';
+            
+            if (historyData.length === 0) {
+                const loadingItem = document.createElement('div');
+                loadingItem.className = 'history-item loading';
+                loadingItem.innerHTML = `
+                    <img class="history-item-art" src="https://via.placeholder.com/40" alt="Loading">
+                    <div class="history-item-info">
+                        <div class="history-item-title">No history available</div>
+                        <div class="history-item-artist">Check back later</div>
+                    </div>
+                    <div class="history-item-time">--:--</div>
+                `;
+                historyList.appendChild(loadingItem);
+                return;
+            }
+            
+            // Add items in chronological order (newest at top)
+            const itemsToShow = historyData.slice(0, maxHistoryItems);
+            itemsToShow.forEach(song => {
+                historyList.appendChild(createHistoryItem(song));
+            });
+        }
+
+        // Update scrolling header text with current song info
+        function updateScrollingHeader(title, artist) {
+            const text = `${title} by ${artist}`;
+            headerScroll.innerHTML = `
+                <p>${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text}
+                    • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text} • ${text}</p>
+            `;
+        }
+
+        // Fetch now playing data
+        function fetchNowPlaying(forceUpdate = false) {
+            const now = Date.now();
+            // Don't update more than once per second
+            if (!forceUpdate && now - lastSongUpdate < 1000) {
+                return;
+            }
+            lastSongUpdate = now;
+            
+            fetch('https://radio.wearfoi.com/api/nowplaying/47.7_freedomtothesound?_=' + now)
+                .then(response => response.json())
+                .then(data => {
+                    retryCount = 0; // Reset retry count on successful fetch
+                    
+                    if (data.now_playing) {
+                        const nowPlaying = data.now_playing;
+                        const song = nowPlaying.song || {};
+                        const elapsed = nowPlaying.elapsed || 0;
+                        const duration = nowPlaying.duration || 0;
+                        
+                        // Only update if song changed or forced update
+                        if (song.id !== currentSongId || forceUpdate) {
+                            currentSongId = song.id;
+                            songDuration = duration;
+                            songStartTime = Date.now() - (elapsed * 1000);
+                            
+                            // Update cover art with cache busting
+                            if (song.art) {
+                                coverArt.src = song.art + '?_=' + now;
+                                coverArt.style.display = 'block';
+                                coverArt.onerror = () => { 
+                                    coverArt.src = 'https://via.placeholder.com/200?_=' + now;
+                                    coverArt.style.display = 'block';
+                                };
+                            } else {
+                                coverArt.src = 'https://via.placeholder.com/200?_=' + now;
+                                coverArt.style.display = 'block';
+                            }
+                            
+                            // Update song info
+                            const title = song.title || 'Unknown Track';
+                            const artist = song.artist || 'Unknown Artist';
+                            const album = song.album || '';
+                            
+                            songTitleEl.textContent = title;
+                            songArtistEl.textContent = artist;
+                            songAlbumEl.textContent = album;
+                            
+                            // Update scrolling header text
+                            updateScrollingHeader(title, artist);
+                            
+                            // Update page title
+                            document.title = `${artist} - ${title} | 47.7 freedomtothesound`;
+                            
+                            // Update Media Session metadata
+                            if ('mediaSession' in navigator) {
+                                navigator.mediaSession.metadata = new MediaMetadata({
+                                    title: title,
+                                    artist: artist,
+                                    album: album,
+                                    artwork: [
+                                        { src: song.art || 'https://via.placeholder.com/200', sizes: '200x200', type: 'image/jpeg' },
+                                        { src: song.art || 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/jpeg' },
+                                        { src: song.art || 'https://via.placeholder.com/96', sizes: '96x96', type: 'image/jpeg' }
+                                    ]
+                                });
+                            }
+                            
+                            // Reset progress if song changed
+                            if (forceUpdate) {
+                                progressBar.style.width = '0%';
+                                currentTimeEl.textContent = formatTime(0);
+                                durationEl.textContent = formatTime(duration);
+                            }
+                            
+                            // Start progress updates if playing
+                            if (isPlaying) {
+                                cancelAnimationFrame(animationFrameId);
+                                updateProgress();
+                            }
+                        }
+                    }
+
+                    // Update history if available
+                    if (data.song_history) {
+                        historyData = data.song_history.map(item => {
+                            return {
+                                title: item.song ? item.song.title : 'Unknown Track',
+                                artist: item.song ? item.song.artist : 'Unknown Artist',
+                                album: item.song ? item.song.album : '',
+                                art: item.song ? item.song.art : 'https://via.placeholder.com/40',
+                                played_at: item.played_at || Math.floor(Date.now() / 1000)
+                            };
+                        });
+                        updateHistory();
+                    }
+                })
+                .catch(error => {
+                    console.log('Error fetching data:', error);
+                    songTitleEl.textContent = 'Updating...';
+                    songArtistEl.textContent = 'Connection in progress';
+                    songAlbumEl.textContent = '';
+                    
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(fetchNowPlaying, 3000);
+                    } else {
+                        showConnectionError();
+                    }
+                });
+        }
+
+        // Toggle dark mode
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            darkModeToggle.style.background = isDark ? '#fff' : '#333';
+            localStorage.setItem('dark-mode', isDark ? 'enabled' : 'disabled');
+        });
+
+        // Initialize everything
+        function init() {
+            initDarkMode();
+            setupVolumeControls();
+            setupMediaSession();
+            
+            // Set up play button event listener
+            playBtn.addEventListener('click', togglePlay);
+            
+            // Set up volume slider
+            volumeSlider.addEventListener('input', updateVolume);
+            audio.addEventListener('volumechange', updateVolume);
+            
+            // Start with player paused
+            isPlaying = false;
+            playBtn.innerHTML = '<svg class="volume-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            
+            // Start fetching now playing data
+            fetchNowPlaying();
+            
+            // Handle mobile browser tab switching
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && isPlaying) {
+                    // Small delay to ensure audio context is resumed
+                    setTimeout(() => {
+                        audio.play().catch(e => {
+                            console.log('Playback resume error:', e);
+                            // If resume fails, try refreshing the audio
+                            if (retryCount < maxRetries) {
+                                retryCount++;
+                                setTimeout(refreshAudio, 1000);
+                            }
+                        });
+                    }, 300);
+                }
+            });
+            
+            // Handle audio errors
+            audio.addEventListener('error', (e) => {
+                console.log('Audio error:', e);
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    setTimeout(refreshAudio, 1000);
+                } else {
+                    showConnectionError();
+                }
+            });
+            
+            // Schedule regular now playing updates
+            setInterval(fetchNowPlaying, 3000);
+            
+            // Refresh audio source periodically with fade to prevent cutting out
+            audioRefreshInterval = setInterval(() => {
+                if (isPlaying) {
+                    refreshAudio();
+                }
+            }, 30000); // Refresh every 30 seconds
+        }
+
+        // Start the app
+        init();
+    </script>
+
+<script src="drawing.js"></script>
+
+</body>
+</html>
