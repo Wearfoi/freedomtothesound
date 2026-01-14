@@ -1,7 +1,6 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Create canvas
     const canvas = document.createElement('canvas');
     canvas.style.position = 'fixed';
     canvas.style.top = '0';
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.style.zIndex = '9999';
     document.body.appendChild(canvas);
 
-    // Resize handling
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -25,11 +23,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const particleSize = 4;
     let isDrawing = false;
 
-    // AUDIO UNLOCK LOGIC
+    // Music unlock function
     function startMusic() {
         const audio = document.getElementById('bg-audio');
         if (audio && audio.paused) {
-            audio.play().catch(err => console.log("Audio waiting for interaction"));
+            audio.play().catch(err => console.log("Audio waiting for user interaction"));
         }
     }
 
@@ -47,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('mousedown', (e) => {
         isDrawing = true;
         disableSelection();
-        startMusic(); // Starts music on click
+        startMusic();
         addParticles(e.clientX, e.clientY);
     });
     document.addEventListener('mouseup', () => {
@@ -58,11 +56,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDrawing) addParticles(e.clientX, e.clientY);
     });
 
-    // Touch events
+    // Touch events - Fixed for scrolling
     document.addEventListener('touchstart', (e) => {
         isDrawing = true;
         disableSelection();
-        startMusic(); // Starts music on touch
+        startMusic();
         const touch = e.touches[0];
         addParticles(touch.clientX, touch.clientY);
     });
@@ -74,7 +72,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDrawing) {
             const touch = e.touches[0];
             addParticles(touch.clientX, touch.clientY);
-            e.preventDefault();
+            // Only stop scroll when drawing
+            if (e.cancelable) e.preventDefault();
         }
     }, { passive: false });
 
@@ -100,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 particles.splice(i, 1);
             } else {
                 p.alpha = 1 - (age / 4);
-                // Drawing color set to Black
+                // Set to black particles
                 ctx.fillStyle = `rgba(0, 0, 0, ${p.alpha})`;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
