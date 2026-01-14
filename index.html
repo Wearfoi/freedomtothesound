@@ -30,8 +30,8 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* DVD Bounce Script - Fixed Version */
-        let x, y, xSpeed = 1, ySpeed = 1;
+        /* DVD Bounce Script with Spinning - Slower Version */
+        let x, y, xSpeed = 0.5, ySpeed = 0.5, rotation = 0, rotationSpeed = 0.5;
         
         function initBounce() {
             const logo = document.getElementById('bouncing-logo');
@@ -63,6 +63,7 @@
 
             x += xSpeed;
             y += ySpeed;
+            rotation += rotationSpeed;
 
             // Collision Detection
             if (x + logoWidth >= boardWidth || x <= 0) {
@@ -76,7 +77,8 @@
                 y = y + logoHeight >= boardHeight ? boardHeight - logoHeight : Math.max(0, y);
             }
 
-            logo.style.transform = `translate(${x}px, ${y}px)`;
+            // Apply both translation and rotation
+            logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
         }
 
         // Start the animation loop
@@ -121,7 +123,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            font-family: "Trebuchet MS", Trebuchet, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #1a1a1a;
             text-align: center;
             overflow: hidden; /* Prevents scrollbars */
@@ -134,10 +136,9 @@
             width: 150px;
             height: auto;
             z-index: -1; /* Background */
-            opacity: 0.5;
             pointer-events: none;
             will-change: transform;
-            transform: translate(0, 0); /* Initial transform */
+            transform: translate(0, 0) rotate(0deg); /* Initial transform */
         }
         
         .text-style {
@@ -172,7 +173,7 @@
             width: 100%;
             height: 700px;
             border: 0;
-            border-radius: 12px;
+            border-radius: 0; /* Changed from 12px to 0 for square corners */
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
         
