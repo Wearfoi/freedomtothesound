@@ -30,8 +30,8 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* DVD Bounce Script with Spinning - Slower Version */
-        let x, y, xSpeed = 0.4, ySpeed = 0.4, rotation = 0, rotationSpeed = 0.2;
+        /* DVD Bounce Script */
+        let x, y, xSpeed = 0.34, ySpeed = 0.34, rotation = 0, rotationSpeed = 0.2;
         
         function initBounce() {
             const logo = document.getElementById('bouncing-logo');
@@ -199,6 +199,8 @@
     <div class="footer-text text-style">
         January 22nd
     </div>
+
+<script src="drawing.js"></script>
 
 </body>
 </html>
