@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>freedomtothesound</title>
-    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="icon" type="image/png" href="favicon.png">
     
     <script>
         /* URL Cleaner */
@@ -15,7 +15,6 @@
 
         /* Countdown Script */
         function updateCountdown() {
-            // Target: Jan 22, 2026 00:00:00 EST
             const targetDate = new Date("2026-01-22T00:00:00-05:00").getTime();
             const now = new Date().getTime();
             const distance = targetDate - now;
@@ -57,20 +56,28 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            /* Footer and Countdown now share this font stack */
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #1a1a1a;
             text-align: center;
         }
         
+        /* Matched styling for Top and Bottom */
+        .text-style {
+            font-size: 1.2rem;
+            font-weight: 600; /* Semi-bold, same as footer */
+            letter-spacing: 0.05em;
+            color: #1a1a1a;
+            width: 100%;
+        }
+
         #countdown {
             padding-top: 50px;
-            font-size: 3rem;
-            font-weight: 900;
-            letter-spacing: 0.05em;
-            width: 100%;
-            /* This keeps the numbers from jumping around */
+            /* Keeps the numbers from shifting/jumping */
             font-variant-numeric: tabular-nums;
+        }
+        
+        .footer-text {
+            padding-bottom: 50px;
         }
         
         .container {
@@ -96,24 +103,17 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
         
-        .footer-text {
-            padding-bottom: 50px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            letter-spacing: 0.05em;
-        }
-        
         @media (max-width: 600px) {
-            #countdown { font-size: 2.2rem; padding-top: 30px; }
+            .text-style { font-size: 1rem; }
+            #countdown { padding-top: 30px; }
+            .footer-text { padding-bottom: 30px; }
             .bandcamp-embed { height: 600px; }
-            .footer-text { font-size: 1rem; padding-bottom: 30px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="countdown">Freeing...</div>
+    <div id="countdown" class="text-style">Calculating...</div>
 
     <div class="container">
         <div class="bandcamp-wrapper">
@@ -126,7 +126,7 @@
         </div>
     </div>
 
-    <div class="footer-text">
+    <div class="footer-text text-style">
         January 22nd 2026
     </div>
 
