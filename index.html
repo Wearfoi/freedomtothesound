@@ -18,29 +18,94 @@
             const targetDate = new Date("2026-01-22T00:00:00-05:00").getTime();
             const now = new Date().getTime();
             const distance = targetDate - now;
-
             const element = document.getElementById("countdown");
-
             if (distance < 0) {
                 element.innerHTML = "00:00:00:00";
                 return;
             }
-
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            const d = String(days).padStart(2, '0');
-            const h = String(hours).padStart(2, '0');
-            const m = String(minutes).padStart(2, '0');
-            const s = String(seconds).padStart(2, '0');
-
-            element.innerHTML = d + ":" + h + ":" + m + ":" + s;
+            element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
+        /* DVD Bounce Script - Fixed Version */
+        let x, y, xSpeed = 2, ySpeed = 2;
+        
+        function initBounce() {
+            const logo = document.getElementById('bouncing-logo');
+            if (!logo) return;
+            
+            // Wait for logo to load to get accurate dimensions
+            logo.onload = function() {
+                x = Math.random() * (window.innerWidth - logo.offsetWidth);
+                y = Math.random() * (window.innerHeight - logo.offsetHeight);
+                startBounce();
+            };
+            
+            // In case the image is already loaded
+            if (logo.complete) {
+                x = Math.random() * (window.innerWidth - logo.offsetWidth);
+                y = Math.random() * (window.innerHeight - logo.offsetHeight);
+                startBounce();
+            }
+        }
+        
+        function bounceLogo() {
+            const logo = document.getElementById('bouncing-logo');
+            if (!logo) return;
+            
+            const boardWidth = window.innerWidth;
+            const boardHeight = window.innerHeight;
+            const logoWidth = logo.offsetWidth || 150;
+            const logoHeight = logo.offsetHeight || 150;
+
+            x += xSpeed;
+            y += ySpeed;
+
+            // Collision Detection
+            if (x + logoWidth >= boardWidth || x <= 0) {
+                xSpeed *= -1;
+                // Adjust position to stay within bounds
+                x = x + logoWidth >= boardWidth ? boardWidth - logoWidth : Math.max(0, x);
+            }
+            if (y + logoHeight >= boardHeight || y <= 0) {
+                ySpeed *= -1;
+                // Adjust position to stay within bounds
+                y = y + logoHeight >= boardHeight ? boardHeight - logoHeight : Math.max(0, y);
+            }
+
+            logo.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        // Start the animation loop
+        function startBounce() {
+            function animate() {
+                bounceLogo();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Update countdown every second
         setInterval(updateCountdown, 1000);
-        window.addEventListener('load', updateCountdown);
+
+        // Use 'DOMContentLoaded' to ensure the element exists before moving it
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCountdown();
+            initBounce();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const logo = document.getElementById('bouncing-logo');
+                if (logo) {
+                    // Keep logo within bounds if window is resized
+                    x = Math.min(x, window.innerWidth - (logo.offsetWidth || 150));
+                    y = Math.min(y, window.innerHeight - (logo.offsetHeight || 150));
+                }
+            });
+        });
     </script>
     <style>
         * {
@@ -59,26 +124,33 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #1a1a1a;
             text-align: center;
+            overflow: hidden; /* Prevents scrollbars */
+        }
+
+        #bouncing-logo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 150px;
+            height: auto;
+            z-index: -1; /* Background */
+            opacity: 0.5;
+            pointer-events: none;
+            will-change: transform;
+            transform: translate(0, 0); /* Initial transform */
         }
         
-        /* Matched styling for Top and Bottom */
         .text-style {
             font-size: 3rem;
-            font-weight: 600; /* Semi-bold, same as footer */
+            font-weight: 600;
             letter-spacing: 0.05em;
             color: #1a1a1a;
             width: 100%;
+            z-index: 1;
         }
 
-        #countdown {
-            padding-top: 50px;
-            /* Keeps the numbers from shifting/jumping */
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .footer-text {
-            padding-bottom: 50px;
-        }
+        #countdown { padding-top: 50px; font-variant-numeric: tabular-nums; }
+        .footer-text { padding-bottom: 50px; }
         
         .container {
             width: 100%;
@@ -87,6 +159,7 @@
             align-items: center;
             padding: 20px 0;
             flex-grow: 1;
+            z-index: 1;
         }
         
         .bandcamp-wrapper {
@@ -104,14 +177,17 @@
         }
         
         @media (max-width: 600px) {
-            .text-style { font-size: 1rem; }
+            .text-style { font-size: 1.5rem; }
             #countdown { padding-top: 30px; }
             .footer-text { padding-bottom: 30px; }
             .bandcamp-embed { height: 600px; }
+            #bouncing-logo { width: 80px; }
         }
     </style>
 </head>
 <body>
+
+    <img src="logo.png" id="bouncing-logo" alt="Logo">
 
     <div id="countdown" class="text-style">Calculating...</div>
 
