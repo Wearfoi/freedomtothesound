@@ -30,20 +30,31 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* DVD Bounce Script */
+        /* DVD Bounce Script - Fixed for Mobile */
         let x, y, xSpeed = 0.34, ySpeed = 0.34, rotation = 0, rotationSpeed = 0.2;
+        let logoWidth = 250;
+        let logoHeight = 250;
         
         function initBounce() {
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
+            
+            // Get actual logo dimensions
+            logoWidth = logo.offsetWidth;
+            logoHeight = logo.offsetHeight;
+            
             logo.onload = function() {
-                x = Math.random() * (window.innerWidth - logo.offsetWidth);
-                y = Math.random() * (window.innerHeight - logo.offsetHeight);
+                logoWidth = logo.offsetWidth;
+                logoHeight = logo.offsetHeight;
+                x = Math.random() * (window.innerWidth - logoWidth);
+                y = Math.random() * (window.innerHeight - logoHeight);
                 startBounce();
             };
             if (logo.complete) {
-                x = Math.random() * (window.innerWidth - logo.offsetWidth);
-                y = Math.random() * (window.innerHeight - logo.offsetHeight);
+                logoWidth = logo.offsetWidth;
+                logoHeight = logo.offsetHeight;
+                x = Math.random() * (window.innerWidth - logoWidth);
+                y = Math.random() * (window.innerHeight - logoHeight);
                 startBounce();
             }
         }
@@ -53,13 +64,29 @@
             if (!logo) return;
             const boardWidth = window.innerWidth;
             const boardHeight = window.innerHeight;
-            const logoWidth = logo.offsetWidth;
-            const logoHeight = logo.offsetHeight;
+            
+            // Update logo dimensions if they changed
+            logoWidth = logo.offsetWidth;
+            logoHeight = logo.offsetHeight;
+            
             x += xSpeed;
             y += ySpeed;
             rotation += rotationSpeed;
-            if (x + logoWidth >= boardWidth || x <= 0) xSpeed *= -1;
-            if (y + logoHeight >= boardHeight || y <= 0) ySpeed *= -1;
+            
+            // Bounce off edges
+            if (x + logoWidth >= boardWidth || x <= 0) {
+                xSpeed *= -1;
+                // Ensure logo stays within bounds
+                if (x <= 0) x = 0;
+                if (x + logoWidth >= boardWidth) x = boardWidth - logoWidth;
+            }
+            if (y + logoHeight >= boardHeight || y <= 0) {
+                ySpeed *= -1;
+                // Ensure logo stays within bounds
+                if (y <= 0) y = 0;
+                if (y + logoHeight >= boardHeight) y = boardHeight - logoHeight;
+            }
+            
             logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
         }
 
@@ -67,6 +94,22 @@
             function animate() { bounceLogo(); requestAnimationFrame(animate); }
             animate();
         }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const logo = document.getElementById('bouncing-logo');
+            if (logo) {
+                // Keep logo within bounds on resize
+                if (x + logo.offsetWidth > window.innerWidth) {
+                    x = window.innerWidth - logo.offsetWidth;
+                }
+                if (y + logo.offsetHeight > window.innerHeight) {
+                    y = window.innerHeight - logo.offsetHeight;
+                }
+                if (x < 0) x = 0;
+                if (y < 0) y = 0;
+            }
+        });
 
         /* Rolodex Switcher Logic */
         function switchView(view) {
@@ -81,7 +124,7 @@
             document.getElementById('btn-artists').classList.remove('active');
             
             // Show selected view and activate button
-            document.getElementById('view-' + view).style.display = 'block';
+            document.getElementById('view-' + view).style.display = 'flex';
             document.getElementById('btn-' + view).classList.add('active');
         }
 
@@ -100,6 +143,7 @@
         html, body {
             height: 100%;
             width: 100%;
+            overflow: hidden;
         }
         
         body {
@@ -108,20 +152,20 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
             font-family: "Trebuchet MS", Trebuchet, sans-serif;
             color: #1a1a1a;
             text-align: center;
-            overflow: hidden;
+            position: relative;
         }
 
         #bouncing-logo {
             position: fixed;
-            top: 0; left: 0; 
             width: 250px;
+            height: 250px;
             z-index: -1; 
             pointer-events: none;
+            object-fit: contain;
+            transition: transform 0.1s linear;
         }
         
         .text-style {
@@ -129,18 +173,17 @@
             font-weight: 600;
             letter-spacing: 0.05em;
             z-index: 1;
-            flex-shrink: 0;
         }
 
         #countdown { 
-            padding-top: 20px; 
-            margin-top: 10px;
+            padding: 15px 0 5px 0;
+            width: 100%;
             flex-shrink: 0;
         }
         
         .footer-text { 
-            padding-bottom: 20px; 
-            margin-bottom: 10px;
+            padding: 5px 0 15px 0;
+            width: 100%;
             flex-shrink: 0;
         }
         
@@ -149,8 +192,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            flex: 1 1 auto;
+            flex: 1;
             padding: 10px 0;
             overflow: hidden;
             min-height: 0;
@@ -300,39 +342,51 @@
 
         #view-radio, #view-artists { display: none; }
 
-        /* RESPONSIVE ADJUSTMENTS */
-        @media (max-width: 600px) {
+        /* MOBILE FIXES */
+        @media (max-width: 768px) {
+            body {
+                height: 100vh;
+                max-height: 100vh;
+                overflow: hidden;
+            }
+            
+            #bouncing-logo {
+                width: 120px;
+                height: 120px;
+                object-fit: contain;
+            }
+            
             .text-style { 
-                font-size: 2rem; 
+                font-size: 2.2rem; 
             }
             
             #countdown { 
-                padding-top: 15px; 
+                padding: 10px 0 5px 0;
                 font-size: 1.8rem;
             }
             
             .footer-text { 
-                padding-bottom: 15px;
+                padding: 5px 0 10px 0;
                 font-size: 1.8rem;
-            }
-            
-            .rolodex-btn {
-                font-size: 0.8rem;
-            }
-            
-            /* Make bouncing logo cover full screen on mobile */
-            #bouncing-logo {
-                width: 100vw;
-                height: 100vh;
-                object-fit: cover;
             }
             
             .container {
                 padding: 5px 0;
+                overflow: visible;
             }
             
             .bandcamp-wrapper {
                 padding: 0 15px;
+                overflow: hidden;
+            }
+            
+            .rolodex-nav {
+                margin-bottom: 10px;
+                gap: 10px;
+            }
+            
+            .rolodex-btn {
+                font-size: 0.8rem;
             }
             
             .artist-name {
@@ -342,26 +396,37 @@
             .artist-description {
                 font-size: 0.9rem;
             }
+            
+            /* Ensure artists tab scrolls properly */
+            .artists-container {
+                -webkit-overflow-scrolling: touch;
+            }
         }
         
         @media (max-width: 480px) {
+            #bouncing-logo {
+                width: 100px;
+                height: 100px;
+            }
+            
             .text-style { 
                 font-size: 1.8rem; 
             }
             
             #countdown {
                 font-size: 1.6rem;
-                padding-top: 10px;
+                padding: 8px 0 3px 0;
             }
             
             .footer-text {
                 font-size: 1.6rem;
-                padding-bottom: 10px;
+                padding: 3px 0 8px 0;
             }
             
             .rolodex-nav {
-                margin-bottom: 10px;
-                gap: 10px;
+                margin-bottom: 8px;
+                gap: 8px;
+                height: 35px;
             }
             
             .rolodex-btn {
@@ -385,19 +450,24 @@
             }
         }
         
-        @media (max-width: 400px) {
+        @media (max-width: 375px) {
+            #bouncing-logo {
+                width: 80px;
+                height: 80px;
+            }
+            
             .text-style { 
                 font-size: 1.5rem;
             }
             
             #countdown {
                 font-size: 1.4rem;
-                padding-top: 8px;
+                padding: 6px 0 2px 0;
             }
             
             .footer-text {
                 font-size: 1.4rem;
-                padding-bottom: 8px;
+                padding: 2px 0 6px 0;
             }
             
             .rolodex-btn {
@@ -406,8 +476,9 @@
             }
             
             .rolodex-nav {
-                gap: 8px;
-                margin-bottom: 8px;
+                gap: 6px;
+                margin-bottom: 6px;
+                height: 32px;
             }
             
             .bandcamp-wrapper {
@@ -415,7 +486,7 @@
             }
             
             .artist-info {
-                padding: 0 10px;
+                padding: 0 12px;
             }
             
             .artist-name {
@@ -427,20 +498,24 @@
             }
         }
         
-        /* Small mobile devices */
-        @media (max-width: 350px) {
+        @media (max-width: 320px) {
+            #bouncing-logo {
+                width: 70px;
+                height: 70px;
+            }
+            
             .text-style { 
                 font-size: 1.3rem;
             }
             
             #countdown {
                 font-size: 1.2rem;
-                padding-top: 5px;
+                padding: 5px 0 2px 0;
             }
             
             .footer-text {
                 font-size: 1.2rem;
-                padding-bottom: 5px;
+                padding: 2px 0 5px 0;
             }
             
             .rolodex-btn {
@@ -460,39 +535,25 @@
             }
         }
         
-        /* Height-based adjustments */
-        @media (max-height: 800px) {
+        /* Height-based adjustments for mobile */
+        @media (max-height: 700px) and (max-width: 768px) {
             .text-style {
-                font-size: 2.5rem;
-            }
-            
-            #countdown {
-                padding-top: 15px;
-            }
-            
-            .footer-text {
-                padding-bottom: 15px;
-            }
-        }
-        
-        @media (max-height: 700px) {
-            .text-style {
-                font-size: 2rem;
-            }
-            
-            #countdown {
-                padding-top: 10px;
                 font-size: 1.8rem;
             }
             
+            #countdown {
+                font-size: 1.5rem;
+                padding: 8px 0 3px 0;
+            }
+            
             .footer-text {
-                padding-bottom: 10px;
-                font-size: 1.8rem;
+                font-size: 1.5rem;
+                padding: 3px 0 8px 0;
             }
             
             .rolodex-nav {
-                margin-bottom: 10px;
-                height: 35px;
+                margin-bottom: 8px;
+                height: 30px;
             }
             
             .artist-card {
@@ -501,33 +562,33 @@
             }
         }
         
-        @media (max-height: 600px) {
+        @media (max-height: 600px) and (max-width: 768px) {
             .text-style {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
             }
             
             #countdown {
-                padding-top: 8px;
-                font-size: 1.6rem;
+                font-size: 1.3rem;
+                padding: 6px 0 2px 0;
             }
             
             .footer-text {
-                padding-bottom: 8px;
-                font-size: 1.6rem;
+                font-size: 1.3rem;
+                padding: 2px 0 6px 0;
             }
             
             .rolodex-nav {
-                margin-bottom: 8px;
-                height: 30px;
+                margin-bottom: 6px;
+                height: 28px;
             }
             
             .rolodex-btn {
-                font-size: 0.8rem;
+                font-size: 0.7rem;
             }
             
             .artist-card {
                 margin-bottom: 15px;
-                padding-bottom: 10px;
+                padding-bottom: 12px;
             }
             
             .artist-name {
@@ -539,34 +600,34 @@
             }
         }
         
-        @media (max-height: 500px) {
+        @media (max-height: 500px) and (max-width: 768px) {
             .text-style {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
             
             #countdown {
-                padding-top: 5px;
-                font-size: 1.3rem;
+                font-size: 1.1rem;
+                padding: 4px 0 2px 0;
             }
             
             .footer-text {
-                padding-bottom: 5px;
-                font-size: 1.3rem;
+                font-size: 1.1rem;
+                padding: 2px 0 4px 0;
             }
             
             .rolodex-nav {
-                margin-bottom: 5px;
-                height: 25px;
+                margin-bottom: 4px;
+                height: 26px;
             }
             
             .rolodex-btn {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 padding: 2px 0;
             }
             
             .artist-card {
-                margin-bottom: 10px;
-                padding-bottom: 8px;
+                margin-bottom: 12px;
+                padding-bottom: 10px;
             }
             
             .artist-image {
