@@ -97,9 +97,15 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+        
         body {
             background-color: #f8f8f8;
             min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -107,14 +113,15 @@
             font-family: "Trebuchet MS", Trebuchet, sans-serif;
             color: #1a1a1a;
             text-align: center;
-            overflow-x: hidden;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
         #bouncing-logo {
             position: fixed;
-            top: 0; left: 0; width: 250px;
-            z-index: -1; pointer-events: none;
+            top: 0; left: 0; 
+            width: 250px;
+            z-index: -1; 
+            pointer-events: none;
         }
         
         .text-style {
@@ -122,15 +129,19 @@
             font-weight: 600;
             letter-spacing: 0.05em;
             z-index: 1;
+            flex-shrink: 0;
         }
 
         #countdown { 
-            padding-top: 30px; 
+            padding-top: 20px; 
             margin-top: 10px;
+            flex-shrink: 0;
         }
+        
         .footer-text { 
-            padding-bottom: 30px; 
+            padding-bottom: 20px; 
             margin-bottom: 10px;
+            flex-shrink: 0;
         }
         
         .container {
@@ -138,10 +149,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex-grow: 1;
-            padding: 15px 0;
+            justify-content: center;
+            flex: 1 1 auto;
+            padding: 10px 0;
             overflow: hidden;
-            box-sizing: border-box;
+            min-height: 0;
         }
         
         .bandcamp-wrapper {
@@ -151,6 +163,8 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-height: 0;
         }
 
         .rolodex-nav {
@@ -161,6 +175,7 @@
             width: 100%;
             height: 40px;
             gap: 20px;
+            flex-shrink: 0;
         }
 
         .rolodex-btn {
@@ -176,6 +191,11 @@
             flex: 1;
             text-align: center;
             padding: 5px 0;
+            color: #1a1a1a !important;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
         .rolodex-btn.active { 
@@ -183,27 +203,68 @@
             border-bottom: 2px solid #1a1a1a; 
         }
         
-        /* All tabs same size with reduced shadow */
-        .bandcamp-embed, .scroll-view, .radio-embed-container {
+        /* TAB CONTAINERS - ALL THE SAME HEIGHT */
+        .tab-container {
             width: 100%;
-            height: 680px;
+            height: 100%;
+            min-height: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Music/Ralkalico Tab */
+        .music-container {
+            width: 100%;
+            height: 100%;
             border: 0;
             background: white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border-radius: 1px;
             overflow: hidden;
+            flex: 1;
         }
-
-        /* Artist Scroll View - ONLY this scrolls */
-        .scroll-view {
+        
+        .bandcamp-embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+            overflow: hidden;
+        }
+        
+        /* Radio Tab */
+        .radio-container {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 1px;
+            overflow: hidden;
+            flex: 1;
+        }
+        
+        .radio-embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+            overflow: hidden;
+        }
+        
+        /* Artists Tab */
+        .artists-container {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 1px;
             overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
             text-align: left;
             padding: 0;
-        }
-
-        /* Prevent scrolling on other elements */
-        .bandcamp-embed, .radio-embed-container {
-            overflow: hidden !important;
         }
 
         .artist-card {
@@ -238,29 +299,6 @@
         }
 
         #view-radio, #view-artists { display: none; }
-        
-        /* Radio Player Styles - FIXED HEIGHT */
-        .radio-embed-container {
-            display: flex;
-            flex-direction: column;
-            height: 680px;
-            background: #ffffff;
-        }
-
-        .radio-player-wrapper {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-
-        .radio-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            overflow: hidden;
-        }
 
         /* RESPONSIVE ADJUSTMENTS */
         @media (max-width: 600px) {
@@ -268,46 +306,82 @@
                 font-size: 2rem; 
             }
             
-            .bandcamp-embed, .scroll-view, .radio-embed-container { 
-                height: 560px; 
-            }
-            
-            .radio-embed-container {
-                height: 560px;
-            }
-            
             #countdown { 
-                padding-top: 20px; 
+                padding-top: 15px; 
                 font-size: 1.8rem;
             }
             
             .footer-text { 
-                padding-bottom: 20px;
+                padding-bottom: 15px;
                 font-size: 1.8rem;
             }
             
             .rolodex-btn {
                 font-size: 0.8rem;
             }
+            
+            /* Make bouncing logo cover full screen on mobile */
+            #bouncing-logo {
+                width: 100vw;
+                height: 100vh;
+                object-fit: cover;
+            }
+            
+            .container {
+                padding: 5px 0;
+            }
+            
+            .bandcamp-wrapper {
+                padding: 0 15px;
+            }
+            
+            .artist-name {
+                font-size: 1.3rem;
+            }
+            
+            .artist-description {
+                font-size: 0.9rem;
+            }
         }
         
         @media (max-width: 480px) {
-            .bandcamp-embed, .scroll-view, .radio-embed-container { 
-                height: 520px;
-            }
-            
-            .radio-embed-container {
-                height: 520px;
+            .text-style { 
+                font-size: 1.8rem; 
             }
             
             #countdown {
                 font-size: 1.6rem;
-                padding-top: 15px;
+                padding-top: 10px;
             }
             
             .footer-text {
                 font-size: 1.6rem;
-                padding-bottom: 15px;
+                padding-bottom: 10px;
+            }
+            
+            .rolodex-nav {
+                margin-bottom: 10px;
+                gap: 10px;
+            }
+            
+            .rolodex-btn {
+                font-size: 0.75rem;
+            }
+            
+            .bandcamp-wrapper {
+                padding: 0 10px;
+            }
+            
+            .artist-info {
+                padding: 0 15px;
+            }
+            
+            .artist-name {
+                font-size: 1.2rem;
+            }
+            
+            .artist-description {
+                font-size: 0.85rem;
             }
         }
         
@@ -316,75 +390,195 @@
                 font-size: 1.5rem;
             }
             
-            .bandcamp-embed, .scroll-view, .radio-embed-container { 
-                height: 480px;
-            }
-            
-            .radio-embed-container {
-                height: 480px;
-            }
-            
             #countdown {
                 font-size: 1.4rem;
-                padding-top: 10px;
+                padding-top: 8px;
             }
             
             .footer-text {
                 font-size: 1.4rem;
-                padding-bottom: 10px;
+                padding-bottom: 8px;
             }
             
             .rolodex-btn {
                 font-size: 0.7rem;
+                padding: 3px 0;
             }
             
             .rolodex-nav {
-                gap: 10px;
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+            
+            .bandcamp-wrapper {
+                padding: 0 8px;
+            }
+            
+            .artist-info {
+                padding: 0 10px;
+            }
+            
+            .artist-name {
+                font-size: 1.1rem;
+            }
+            
+            .artist-description {
+                font-size: 0.8rem;
             }
         }
         
         /* Small mobile devices */
         @media (max-width: 350px) {
-            .bandcamp-embed, .scroll-view, .radio-embed-container { 
-                height: 440px;
+            .text-style { 
+                font-size: 1.3rem;
             }
             
-            .radio-embed-container {
-                height: 440px;
+            #countdown {
+                font-size: 1.2rem;
+                padding-top: 5px;
+            }
+            
+            .footer-text {
+                font-size: 1.2rem;
+                padding-bottom: 5px;
             }
             
             .rolodex-btn {
                 font-size: 0.65rem;
-                padding: 3px 0;
             }
             
             .rolodex-nav {
                 gap: 5px;
             }
-        }
-        
-        /* Very small devices */
-        @media (max-height: 700px) {
-            .bandcamp-embed, .scroll-view, .radio-embed-container { 
-                height: 460px;
+            
+            .artist-name {
+                font-size: 1rem;
             }
             
-            .radio-embed-container {
-                height: 460px;
+            .artist-description {
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Height-based adjustments */
+        @media (max-height: 800px) {
+            .text-style {
+                font-size: 2.5rem;
+            }
+            
+            #countdown {
+                padding-top: 15px;
+            }
+            
+            .footer-text {
+                padding-bottom: 15px;
+            }
+        }
+        
+        @media (max-height: 700px) {
+            .text-style {
+                font-size: 2rem;
+            }
+            
+            #countdown {
+                padding-top: 10px;
+                font-size: 1.8rem;
+            }
+            
+            .footer-text {
+                padding-bottom: 10px;
+                font-size: 1.8rem;
+            }
+            
+            .rolodex-nav {
+                margin-bottom: 10px;
+                height: 35px;
+            }
+            
+            .artist-card {
+                margin-bottom: 20px;
+                padding-bottom: 15px;
             }
         }
         
         @media (max-height: 600px) {
-            .bandcamp-embed, .scroll-view, .radio-embed-container { 
-                height: 420px;
-            }
-            
-            .radio-embed-container {
-                height: 420px;
-            }
-            
             .text-style {
                 font-size: 1.8rem;
+            }
+            
+            #countdown {
+                padding-top: 8px;
+                font-size: 1.6rem;
+            }
+            
+            .footer-text {
+                padding-bottom: 8px;
+                font-size: 1.6rem;
+            }
+            
+            .rolodex-nav {
+                margin-bottom: 8px;
+                height: 30px;
+            }
+            
+            .rolodex-btn {
+                font-size: 0.8rem;
+            }
+            
+            .artist-card {
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+            }
+            
+            .artist-name {
+                font-size: 1.1rem;
+            }
+            
+            .artist-description {
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-height: 500px) {
+            .text-style {
+                font-size: 1.5rem;
+            }
+            
+            #countdown {
+                padding-top: 5px;
+                font-size: 1.3rem;
+            }
+            
+            .footer-text {
+                padding-bottom: 5px;
+                font-size: 1.3rem;
+            }
+            
+            .rolodex-nav {
+                margin-bottom: 5px;
+                height: 25px;
+            }
+            
+            .rolodex-btn {
+                font-size: 0.7rem;
+                padding: 2px 0;
+            }
+            
+            .artist-card {
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+            }
+            
+            .artist-image {
+                margin-bottom: 10px;
+            }
+            
+            .artist-name {
+                font-size: 1rem;
+            }
+            
+            .artist-description {
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -404,38 +598,42 @@
                 <button id="btn-artists" class="rolodex-btn" onclick="switchView('artists')">Artists</button>
             </div>
 
-            <div id="view-music">
-                <iframe class="bandcamp-embed" src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" seamless></iframe>
-            </div>
-
-            <div id="view-radio" style="display: none;">
-                <div class="radio-embed-container">
-                    <iframe src="radio1.html" class="radio-iframe" title="Radio Player"></iframe>
+            <div id="view-music" class="tab-container">
+                <div class="music-container">
+                    <iframe class="bandcamp-embed" src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" seamless></iframe>
                 </div>
             </div>
 
-            <div id="view-artists" class="scroll-view">
-                <div class="artist-card">
-                    <img src="wearfoilogo.png" class="artist-image">
-                    <div class="artist-info">
-                        <h2 class="artist-name">Wearfoi</h2>
-                        <p class="artist-description">smokemoneybillhanson, themoderndaymodern, Ear Terrorist, Freak Star, Bleh Baby, DJ BOGEY MILK, wind hoppa, First Lady, Tripster, Pring Springsteen, Donald Pakowski, Bon Foolio, Soldier Kush, Ego leon, Verner Vents, Blondie Burbank, Sock Monster. Whatever will you call him, he remains true. Founder of freedomtothesound. RalKalico Country Founding Father. Created the caves and the drawings on it in one #PSYCHIC_#MORNING. Led the infamous Train War against Dead Squirrel Island.</p>
+            <div id="view-radio" class="tab-container" style="display: none;">
+                <div class="radio-container">
+                    <iframe src="radio1.html" class="radio-embed" title="Radio Player"></iframe>
+                </div>
+            </div>
+
+            <div id="view-artists" class="tab-container" style="display: none;">
+                <div class="artists-container">
+                    <div class="artist-card">
+                        <img src="wearfoilogo.png" class="artist-image">
+                        <div class="artist-info">
+                            <h2 class="artist-name">Wearfoi</h2>
+                            <p class="artist-description">smokemoneybillhanson, themoderndaymodern, Ear Terrorist, Freak Star, Bleh Baby, DJ BOGEY MILK, wind hoppa, First Lady, Tripster, Pring Springsteen, Donald Pakowski, Bon Foolio, Soldier Kush, Ego leon, Verner Vents, Blondie Burbank, Sock Monster. Whatever will you call him, he remains true. Founder of freedomtothesound. RalKalico Country Founding Father. Created the caves and the drawings on it in one #PSYCHIC_#MORNING. Led the infamous Train War against Dead Squirrel Island.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="artist-card">
-                    <img src="vajonkylogo.png" class="artist-image">
-                    <div class="artist-info">
-                        <h2 class="artist-name">VAJONKY</h2>
-                        <p class="artist-description">RICH MONEY DUDE - ERIC GOOD MONEY - BROKE MAN BENSON
+                    <div class="artist-card">
+                        <img src="vajonkylogo.png" class="artist-image">
+                        <div class="artist-info">
+                            <h2 class="artist-name">VAJONKY</h2>
+                            <p class="artist-description">RICH MONEY DUDE - ERIC GOOD MONEY - BROKE MAN BENSON
 FREE THE SOUND TILL EVERYONE IS DEAF, THEN FREE THE SOUL. PEACE AND LOVE TO ALL. THEY HIT EM 5 TIMES 3 TIMES LETHAL LOOK OUT FOR YOUR NEIGHBORS MAY THE SOUND UNITE. FREE PALESTINE.
 freedomtothesound.com</p>
+                        </div>
                     </div>
-                </div>
-                <div class="artist-card">
-                    <img src="djbmlogo.png" class="artist-image">
-                    <div class="artist-info">
-                        <h2 class="artist-name">DJ BROTHER $$$</h2>
-                        <p class="artist-description">Hello $$$$ I'm $$$$DJ$MY LI$$FE IS NOTHING BUT$$ MONEY I FO TO THE$MART GET MY MONEY MY SKIN AS $$ BROWN AS MY MONEY IM GREEN AS A GRA$$$HOPPER I HAVE 25 TOE$$$ AND CROAK LIKE A FRO&&& IM AS TALL A$ ANT AND AS LOUD AS A TRUÇCK MAY YOUR MONEY BE MART AND YOUR$$WORLDBE RICH DJ BROTHER $$$</p>
+                    <div class="artist-card">
+                        <img src="djbmlogo.png" class="artist-image">
+                        <div class="artist-info">
+                            <h2 class="artist-name">DJ BROTHER $$$</h2>
+                            <p class="artist-description">Hello $$$$ I'm $$$$DJ$MY LI$$FE IS NOTHING BUT$$ MONEY I FO TO THE$MART GET MY MONEY MY SKIN AS $$ BROWN AS MY MONEY IM GREEN AS A GRA$$$HOPPER I HAVE 25 TOE$$$ AND CROAK LIKE A FRO&&& IM AS TALL A$ ANT AND AS LOUD AS A TRUÇCK MAY YOUR MONEY BE MART AND YOUR$$WORLDBE RICH DJ BROTHER $$$</p>
+                        </div>
                     </div>
                 </div>
             </div>

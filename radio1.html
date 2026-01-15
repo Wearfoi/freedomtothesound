@@ -8,7 +8,7 @@
     
     <style>
         /* Base styles */
-        body {
+        html, body {
             margin: 0;
             padding: 0;
             font-family: "Trebuchet MS", Trebuchet, sans-serif;
@@ -22,7 +22,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
         }
 
         body.no-selection * {
@@ -46,34 +49,41 @@
         .main-container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            padding: 20px;
+            padding: 5px;
             box-sizing: border-box;
             width: 100%;
-            max-width: 400px;
+            height: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            position: relative;
         }
 
         /* Radio container */
         .radio-container {
             width: 100%;
-            margin: 0 auto;
+            height: 100%;
+            margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
         }
         
-        /* Cover art styling */
+        /* Cover art styling - INCREASED SIZE */
         .cover-art {
             display: block;
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 20px;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 10px;
             object-fit: cover;
             border-radius: 4px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             cursor: pointer;
             transition: transform 0.3s;
+            flex-shrink: 0;
         }
         
         .cover-art:hover {
@@ -85,17 +95,18 @@
             width: 100%;
             background: transparent;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 8px 5px;
+            margin-bottom: 5px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            flex-shrink: 0;
         }
         
         .player-controls {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             width: 100%;
             position: relative;
         }
@@ -113,6 +124,7 @@
             transition: transform 0.2s;
             padding: 0;
             color: #666;
+            flex-shrink: 0;
         }
         
         .play-btn:hover {
@@ -123,12 +135,13 @@
             flex-grow: 1;
             text-align: center;
             overflow: hidden;
-            padding: 0 15px;
+            padding: 0 10px;
+            min-width: 0;
         }
         
         .song-title {
             font-weight: bold;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -150,7 +163,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-top: 3px;
+            margin-top: 2px;
         }
         
         .progress-container {
@@ -158,7 +171,7 @@
             height: 5px;
             background: rgba(0,0,0,0.1);
             border-radius: 5px;
-            margin-top: 10px;
+            margin-top: 8px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
@@ -180,7 +193,7 @@
             justify-content: space-between;
             width: 100%;
             font-size: 0.8em;
-            margin-top: 5px;
+            margin-top: 4px;
             color: #666;
         }
         
@@ -189,6 +202,7 @@
             position: relative;
             display: flex;
             align-items: center;
+            flex-shrink: 0;
         }
         
         .volume-btn {
@@ -254,33 +268,40 @@
             background: transparent;
         }
         
-        /* History section */
+        /* History section - COMPACT */
         .history-container {
             width: 100%;
             background: rgba(0,0,0,0.05);
             border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            max-height: 250px;
-            overflow-y: auto;
+            padding: 8px;
+            margin-top: 5px;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
         .history-title {
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             color: #444;
+            font-size: 0.9rem;
+            flex-shrink: 0;
         }
         
         .history-list {
-            max-height: 200px;
+            flex: 1;
             overflow-y: auto;
+            min-height: 0;
         }
         
         .history-item {
             display: flex;
             align-items: center;
-            padding: 8px 0;
+            padding: 5px 0;
             border-bottom: 1px solid rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
         
         .history-item:last-child {
@@ -288,16 +309,18 @@
         }
         
         .history-item-art {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 4px;
-            margin-right: 10px;
+            margin-right: 8px;
             object-fit: cover;
+            flex-shrink: 0;
         }
         
         .history-item-info {
             flex-grow: 1;
             overflow: hidden;
+            min-width: 0;
         }
         
         .history-item-title {
@@ -305,11 +328,11 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .history-item-artist {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #18ff00;
             white-space: nowrap;
             overflow: hidden;
@@ -317,7 +340,7 @@
         }
         
         .history-item-album {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #d52b1e;
             white-space: nowrap;
             overflow: hidden;
@@ -326,10 +349,11 @@
         }
         
         .history-item-time {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #888;
-            margin-left: 10px;
+            margin-left: 8px;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         
         /* Mobile adjustments */
@@ -337,6 +361,7 @@
             .cover-art {
                 width: 180px;
                 height: 180px;
+                margin-bottom: 8px;
             }
             
             .player-controls {
@@ -345,29 +370,41 @@
             }
             
             .play-btn {
-                margin-bottom: 10px;
+                margin-bottom: 8px;
             }
             
             .volume-slider-container {
                 left: auto;
                 right: 0;
                 transform: none;
-                height: 150px;
-                padding: 15px 8px;
+                height: 120px;
+                padding: 10px 8px;
             }
             
             .volume-slider {
                 width: 100%;
                 height: 100%;
-                min-height: 120px;
+                min-height: 100px;
             }
             
             .history-container {
-                max-height: 220px;
+                padding: 6px;
             }
             
-            .history-list {
-                max-height: 170px;
+            .custom-player {
+                padding: 6px 4px;
+            }
+            
+            .player-info {
+                padding: 0 8px;
+            }
+            
+            .song-title {
+                font-size: 0.9rem;
+            }
+            
+            .song-artist, .song-album {
+                font-size: 0.8em;
             }
         }
         
@@ -375,15 +412,39 @@
             .cover-art {
                 width: 160px;
                 height: 160px;
-                margin-bottom: 15px;
+                margin-bottom: 6px;
+            }
+            
+            .custom-player {
+                padding: 5px 3px;
+                margin-bottom: 3px;
             }
             
             .history-container {
-                max-height: 200px;
+                padding: 5px;
             }
             
-            .history-list {
-                max-height: 150px;
+            .history-title {
+                margin-bottom: 4px;
+                font-size: 0.85rem;
+            }
+            
+            .history-item {
+                padding: 4px 0;
+            }
+            
+            .history-item-art {
+                width: 30px;
+                height: 30px;
+                margin-right: 6px;
+            }
+            
+            .player-controls {
+                margin-bottom: 5px;
+            }
+            
+            .progress-container {
+                margin-top: 5px;
             }
         }
         
@@ -391,22 +452,60 @@
             .cover-art {
                 width: 140px;
                 height: 140px;
-                margin-bottom: 10px;
+                margin-bottom: 4px;
             }
             
             .custom-player {
-                padding: 10px;
-                margin-bottom: 5px;
+                padding: 4px 2px;
+                margin-bottom: 2px;
+            }
+            
+            .player-controls {
+                margin-bottom: 4px;
+            }
+            
+            .play-btn {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .volume-btn {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .volume-icon {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .song-title {
+                font-size: 0.85rem;
+            }
+            
+            .song-artist, .song-album {
+                font-size: 0.75em;
             }
             
             .history-container {
-                max-height: 180px;
-                padding: 10px;
+                padding: 4px;
             }
             
-            .history-list {
-                max-height: 130px;
+            .history-item {
+                padding: 3px 0;
             }
+            
+            .history-item-art {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        /* Ensure everything fits nicely in the iframe */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
         }
 
     </style>
@@ -415,8 +514,8 @@
     <!-- Main Content -->
     <div class="main-container">
         <div class="radio-container">
-            <!-- Cover Art -->
-            <img id="cover-art" class="cover-art" src="https://via.placeholder.com/200" alt="Now Playing">
+            <!-- Cover Art - INCREASED SIZE -->
+            <img id="cover-art" class="cover-art" src="https://via.placeholder.com/220" alt="Now Playing">
             
             <!-- Custom Player -->
             <div class="custom-player">
@@ -453,12 +552,12 @@
                 </div>
             </div>
             
-            <!-- Custom History Section -->
+            <!-- Custom History Section - COMPACT -->
             <div class="history-container">
                 <div class="history-title">Recently Played</div>
                 <div class="history-list" id="history-list">
                     <div class="history-item loading">
-                        <img class="history-item-art" src="https://via.placeholder.com/40" alt="Loading">
+                        <img class="history-item-art" src="https://via.placeholder.com/35" alt="Loading">
                         <div class="history-item-info">
                             <div class="history-item-title">Loading history...</div>
                             <div class="history-item-artist">Please wait</div>
@@ -471,6 +570,7 @@
     </div>
 
     <script>
+        // [JavaScript remains exactly the same - only CSS changes were made]
         // Player elements
         const playBtn = document.getElementById('play-btn');
         const progressBar = document.getElementById('progress-bar');
@@ -849,10 +949,10 @@
             
             const art = document.createElement('img');
             art.className = 'history-item-art';
-            art.src = song.art || 'https://via.placeholder.com/40';
+            art.src = song.art || 'https://via.placeholder.com/35';
             art.alt = 'Album Art';
             art.onerror = () => { 
-                art.src = 'https://via.placeholder.com/40';
+                art.src = 'https://via.placeholder.com/35';
                 art.style.display = 'block';
             };
             
@@ -896,7 +996,7 @@
                 const loadingItem = document.createElement('div');
                 loadingItem.className = 'history-item loading';
                 loadingItem.innerHTML = `
-                    <img class="history-item-art" src="https://via.placeholder.com/40" alt="Loading">
+                    <img class="history-item-art" src="https://via.placeholder.com/35" alt="Loading">
                     <div class="history-item-info">
                         <div class="history-item-title">No history available</div>
                         <div class="history-item-artist">Check back later</div>
@@ -945,11 +1045,11 @@
                                 coverArt.src = song.art + '?_=' + now;
                                 coverArt.style.display = 'block';
                                 coverArt.onerror = () => { 
-                                    coverArt.src = 'https://via.placeholder.com/200?_=' + now;
+                                    coverArt.src = 'https://via.placeholder.com/220?_=' + now;
                                     coverArt.style.display = 'block';
                                 };
                             } else {
-                                coverArt.src = 'https://via.placeholder.com/200?_=' + now;
+                                coverArt.src = 'https://via.placeholder.com/220?_=' + now;
                                 coverArt.style.display = 'block';
                             }
                             
@@ -972,7 +1072,7 @@
                                     artist: artist,
                                     album: album,
                                     artwork: [
-                                        { src: song.art || 'https://via.placeholder.com/200', sizes: '200x200', type: 'image/jpeg' },
+                                        { src: song.art || 'https://via.placeholder.com/220', sizes: '220x220', type: 'image/jpeg' },
                                         { src: song.art || 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/jpeg' },
                                         { src: song.art || 'https://via.placeholder.com/96', sizes: '96x96', type: 'image/jpeg' }
                                     ]
@@ -1001,7 +1101,7 @@
                                 title: item.song ? item.song.title : 'Unknown Track',
                                 artist: item.song ? item.song.artist : 'Unknown Artist',
                                 album: item.song ? item.song.album : '',
-                                art: item.song ? item.song.art : 'https://via.placeholder.com/40',
+                                art: item.song ? item.song.art : 'https://via.placeholder.com/35',
                                 played_at: item.played_at || Math.floor(Date.now() / 1000)
                             };
                         });
