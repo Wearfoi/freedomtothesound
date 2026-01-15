@@ -83,6 +83,26 @@
             animate();
         }
 
+        /* Rolodex Switcher Logic */
+        function switchView(view) {
+            const musicView = document.getElementById('view-music');
+            const radioView = document.getElementById('view-radio');
+            const musicBtn = document.getElementById('btn-music');
+            const radioBtn = document.getElementById('btn-radio');
+
+            if (view === 'music') {
+                musicView.style.display = 'block';
+                radioView.style.display = 'none';
+                musicBtn.classList.add('active');
+                radioBtn.classList.remove('active');
+            } else {
+                musicView.style.display = 'none';
+                radioView.style.display = 'block';
+                musicBtn.classList.remove('active');
+                radioBtn.classList.add('active');
+            }
+        }
+
         setInterval(updateCountdown, 1000);
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -115,7 +135,6 @@
             font-family: "Trebuchet MS", Trebuchet, sans-serif;
             color: #1a1a1a;
             text-align: center;
-            /* Changed to allow scrolling on mobile */
             overflow-x: hidden;
             overflow-y: auto; 
         }
@@ -149,6 +168,7 @@
         .container {
             width: 100%;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px 0;
@@ -161,6 +181,33 @@
             max-width: 474px;
             padding: 0 20px;
         }
+
+        /* Rolodex Switch Styles */
+        .rolodex-nav {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+
+        .rolodex-btn {
+            background: none;
+            border: none;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            color: #1a1a1a;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .rolodex-btn.active {
+            opacity: 1;
+            border-bottom: 2px solid #1a1a1a;
+        }
         
         .bandcamp-embed {
             width: 100%;
@@ -168,6 +215,10 @@
             border: 0;
             border-radius: 0;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        #view-radio {
+            display: none; /* Hidden by default */
         }
         
         @media (max-width: 600px) {
@@ -187,12 +238,29 @@
 
     <div class="container">
         <div class="bandcamp-wrapper">
-            <iframe 
-                class="bandcamp-embed"
-                src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" 
-                seamless>
-                <a href="https://wearfoi.bandcamp.com/album/ralkalico">RalKalico by Wearfoi</a>
-            </iframe>
+            
+            <div class="rolodex-nav">
+                <button id="btn-music" class="rolodex-btn active" onclick="switchView('music')">Music</button>
+                <button id="btn-radio" class="rolodex-btn" onclick="switchView('radio')">Radio</button>
+            </div>
+
+            <div id="view-music">
+                <iframe 
+                    class="bandcamp-embed"
+                    src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" 
+                    seamless>
+                    <a href="https://wearfoi.bandcamp.com/album/ralkalico">RalKalico by Wearfoi</a>
+                </iframe>
+            </div>
+
+            <div id="view-radio">
+                <iframe 
+                    src="radio.html" 
+                    class="bandcamp-embed" 
+                    frameborder="0">
+                </iframe>
+            </div>
+
         </div>
     </div>
 
