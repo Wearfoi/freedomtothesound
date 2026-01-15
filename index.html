@@ -36,13 +36,11 @@
         function initBounce() {
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
-            
             logo.onload = function() {
                 x = Math.random() * (window.innerWidth - logo.offsetWidth);
                 y = Math.random() * (window.innerHeight - logo.offsetHeight);
                 startBounce();
             };
-            
             if (logo.complete) {
                 x = Math.random() * (window.innerWidth - logo.offsetWidth);
                 y = Math.random() * (window.innerHeight - logo.offsetHeight);
@@ -53,77 +51,43 @@
         function bounceLogo() {
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
-            
             const boardWidth = window.innerWidth;
             const boardHeight = window.innerHeight;
             const logoWidth = logo.offsetWidth;
             const logoHeight = logo.offsetHeight;
-
             x += xSpeed;
             y += ySpeed;
             rotation += rotationSpeed;
-
-            if (x + logoWidth >= boardWidth || x <= 0) {
-                xSpeed *= -1;
-                x = x + logoWidth >= boardWidth ? boardWidth - logoWidth : Math.max(0, x);
-            }
-            if (y + logoHeight >= boardHeight || y <= 0) {
-                ySpeed *= -1;
-                y = y + logoHeight >= boardHeight ? boardHeight - logoHeight : Math.max(0, y);
-            }
-
+            if (x + logoWidth >= boardWidth || x <= 0) xSpeed *= -1;
+            if (y + logoHeight >= boardHeight || y <= 0) ySpeed *= -1;
             logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
         }
 
         function startBounce() {
-            function animate() {
-                bounceLogo();
-                requestAnimationFrame(animate);
-            }
+            function animate() { bounceLogo(); requestAnimationFrame(animate); }
             animate();
         }
 
         /* Rolodex Switcher Logic */
         function switchView(view) {
-            const musicView = document.getElementById('view-music');
-            const radioView = document.getElementById('view-radio');
-            const musicBtn = document.getElementById('btn-music');
-            const radioBtn = document.getElementById('btn-radio');
-
-            if (view === 'music') {
-                musicView.style.display = 'block';
-                radioView.style.display = 'none';
-                musicBtn.classList.add('active');
-                radioBtn.classList.remove('active');
-            } else {
-                musicView.style.display = 'none';
-                radioView.style.display = 'block';
-                musicBtn.classList.remove('active');
-                radioBtn.classList.add('active');
-            }
+            document.getElementById('view-music').style.display = 'none';
+            document.getElementById('view-radio').style.display = 'none';
+            document.getElementById('view-artists').style.display = 'none';
+            document.getElementById('btn-music').classList.remove('active');
+            document.getElementById('btn-radio').classList.remove('active');
+            document.getElementById('btn-artists').classList.remove('active');
+            document.getElementById('view-' + view).style.display = 'block';
+            document.getElementById('btn-' + view).classList.add('active');
         }
 
         setInterval(updateCountdown, 1000);
-
         document.addEventListener('DOMContentLoaded', () => {
             updateCountdown();
             initBounce();
-            
-            window.addEventListener('resize', function() {
-                const logo = document.getElementById('bouncing-logo');
-                if (logo) {
-                    x = Math.min(x, window.innerWidth - logo.offsetWidth);
-                    y = Math.min(y, window.innerHeight - logo.offsetHeight);
-                }
-            });
         });
     </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             background-color: #f8f8f8;
@@ -135,45 +99,31 @@
             font-family: "Trebuchet MS", Trebuchet, sans-serif;
             color: #1a1a1a;
             text-align: center;
-            overflow-x: hidden;
-            overflow-y: auto; 
         }
 
         #bouncing-logo {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: auto;
-            z-index: -1;
-            pointer-events: none;
-            will-change: transform;
-            transform: translate(0, 0) rotate(0deg);
-            filter: drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.08));
+            top: 0; left: 0; width: 250px;
+            z-index: -1; pointer-events: none;
         }
         
         .text-style {
             font-size: 3rem;
             font-weight: 600;
             letter-spacing: 0.05em;
-            color: #1a1a1a;
-            width: 100%;
             z-index: 1;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        #countdown { padding-top: 50px; font-variant-numeric: tabular-nums; }
+        #countdown { padding-top: 50px; }
         .footer-text { padding-bottom: 50px; }
         
         .container {
             width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 20px 0;
             flex-grow: 1;
-            z-index: 1;
+            padding: 20px 0;
         }
         
         .bandcamp-wrapper {
@@ -182,51 +132,75 @@
             padding: 0 20px;
         }
 
-        /* Rolodex Switch Styles */
         .rolodex-nav {
             display: flex;
             justify-content: center;
-            gap: 30px;
+            gap: 20px;
             margin-bottom: 15px;
         }
 
         .rolodex-btn {
-            background: none;
-            border: none;
-            font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            color: #1a1a1a;
-            opacity: 0.3;
-            transition: opacity 0.3s ease;
+            background: none; border: none;
+            font-family: inherit; font-size: 0.9rem; font-weight: bold;
+            text-transform: uppercase; cursor: pointer;
+            opacity: 0.3; transition: opacity 0.3s;
         }
 
-        .rolodex-btn.active {
-            opacity: 1;
-            border-bottom: 2px solid #1a1a1a;
-        }
+        .rolodex-btn.active { opacity: 1; border-bottom: 2px solid #1a1a1a; }
         
-        .bandcamp-embed {
+        /* RESTORED: Back to the original 700px height */
+        .bandcamp-embed, .scroll-view {
             width: 100%;
             height: 700px;
             border: 0;
-            border-radius: 0;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        #view-radio {
-            display: none; /* Hidden by default */
+        /* Artist Scroll View */
+        .scroll-view {
+            overflow-y: auto;
+            text-align: left;
+            padding: 0; /* Remove padding so image hits the edges */
         }
+
+        .artist-card {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* FIXED: Sharp 90-degree square images */
+        .artist-image {
+            width: 100%;
+            aspect-ratio: 1 / 1; /* Forces a perfect square */
+            object-fit: cover;
+            display: block;
+            border-radius: 0 !important; /* Sharp 90 degree angles */
+            margin-bottom: 15px;
+        }
+
+        .artist-info {
+            padding: 0 20px; /* Add padding back to text only */
+        }
+
+        .artist-name {
+            font-size: 1.5rem;
+            font-weight: bold; /* Bold Title */
+            margin-bottom: 5px;
+        }
+
+        .artist-description {
+            font-weight: normal; /* Regular Description */
+            font-size: 1rem;
+            color: #444;
+        }
+
+        #view-radio, #view-artists { display: none; }
         
         @media (max-width: 600px) {
             .text-style { font-size: 2.2rem; }
-            #countdown { padding-top: 30px; }
-            .footer-text { padding-bottom: 30px; }
-            .bandcamp-embed { height: 600px; }
-            #bouncing-logo { width: 120px; }
+            .bandcamp-embed, .scroll-view { height: 600px; }
         }
     </style>
 </head>
@@ -240,33 +214,42 @@
         <div class="bandcamp-wrapper">
             
             <div class="rolodex-nav">
-                <button id="btn-music" class="rolodex-btn active" onclick="switchView('music')">Music</button>
+                <button id="btn-music" class="rolodex-btn active" onclick="switchView('music')">RALKALICO</button>
                 <button id="btn-radio" class="rolodex-btn" onclick="switchView('radio')">Radio</button>
+                <button id="btn-artists" class="rolodex-btn" onclick="switchView('artists')">Artists</button>
             </div>
 
             <div id="view-music">
-                <iframe 
-                    class="bandcamp-embed"
-                    src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" 
-                    seamless>
-                    <a href="https://wearfoi.bandcamp.com/album/ralkalico">RalKalico by Wearfoi</a>
-                </iframe>
+                <iframe class="bandcamp-embed" src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" seamless></iframe>
             </div>
 
             <div id="view-radio">
-                <iframe 
-                    src="radio.html" 
-                    class="bandcamp-embed" 
-                    frameborder="0">
-                </iframe>
+                <iframe src="radio.html" class="bandcamp-embed" frameborder="0"></iframe>
             </div>
+
+            <div id="view-artists" class="scroll-view">
+                <div class="artist-card">
+                    <img src="wearfoilogo.png" class="artist-image">
+                    <div class="artist-info">
+                        <h2 class="artist-name">Wearfoi</h2>
+                        <p class="artist-description">smokemoneybillhanson, themoderndaymodern, Ear Terrorist, Freak Star, Bleh Baby, DJ BOGEY MILK, wind hoppa, First Lady, Tripster, Pring Springsteen, Donald Pakowski, Bon Foolio, Soldier Kush, Ego leon, Verner Vents, Blondie Burbank, Sock Monster. Whatever will you call him, he remains true. Founder of freedomtothesound. RalKalico Country Founding Father. Created the caves and the drawings on it in one #PSYCHIC_#MORNING. Led the infamous Train War against Dead Squirrel Island.</p>
+                    </div>
+                </div>
+                <div class="artist-card">
+                    <img src="vajonkylogo.png" class="artist-image">
+                    <div class="artist-info">
+                        <h2 class="artist-name">Vajonky</h2>
+                        <p class="artist-description">lol hey its me Vajonky here. Just wanted to say guys, thanks for the vajonking love recently. Love it. Dont forget to love! Support your locals. Support us. Supporing button, PRESSED! Button! Let's go to Iceland bro. Yes. Let's. Rich Money Dude, Eric Good Money, Broke Man Benson. He has it all. He plays freely in the sand of identity. It is his sandbox. His way of simple living. His way of way. Lol guys its me Vajonky. Vajonky Jonk! Let's do this damn thing. Let's do it.</p>
+                    </div>
+
+
+                </div>
+                </div>
 
         </div>
     </div>
 
-    <div class="footer-text text-style">
-        January 22nd
-    </div>
+    <div class="footer-text text-style">January 22nd</div>
 
     <script src="drawing.js"></script>
 </body>
