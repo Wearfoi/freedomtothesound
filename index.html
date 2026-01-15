@@ -70,20 +70,28 @@
 
         /* Rolodex Switcher Logic */
         function switchView(view) {
+            // Hide all views
             document.getElementById('view-music').style.display = 'none';
             document.getElementById('view-radio').style.display = 'none';
             document.getElementById('view-artists').style.display = 'none';
+            
+            // Remove active class from all buttons
             document.getElementById('btn-music').classList.remove('active');
             document.getElementById('btn-radio').classList.remove('active');
             document.getElementById('btn-artists').classList.remove('active');
+            
+            // Show selected view and activate button
             document.getElementById('view-' + view).style.display = 'block';
             document.getElementById('btn-' + view).classList.add('active');
         }
 
-        setInterval(updateCountdown, 1000);
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialize everything when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
             updateCountdown();
             initBounce();
+            
+            // Update countdown every second
+            setInterval(updateCountdown, 1000);
         });
     </script>
     <style>
@@ -99,6 +107,8 @@
             font-family: "Trebuchet MS", Trebuchet, sans-serif;
             color: #1a1a1a;
             text-align: center;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         #bouncing-logo {
@@ -114,8 +124,14 @@
             z-index: 1;
         }
 
-        #countdown { padding-top: 50px; }
-        .footer-text { padding-bottom: 50px; }
+        #countdown { 
+            padding-top: 30px; 
+            margin-top: 10px;
+        }
+        .footer-text { 
+            padding-bottom: 30px; 
+            margin-bottom: 10px;
+        }
         
         .container {
             width: 100%;
@@ -123,45 +139,71 @@
             flex-direction: column;
             align-items: center;
             flex-grow: 1;
-            padding: 20px 0;
+            padding: 15px 0;
+            overflow: hidden;
+            box-sizing: border-box;
         }
         
         .bandcamp-wrapper {
             width: 100%;
             max-width: 474px;
             padding: 0 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .rolodex-nav {
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
+            width: 100%;
+            height: 40px;
+            gap: 20px;
         }
 
         .rolodex-btn {
-            background: none; border: none;
-            font-family: inherit; font-size: 0.9rem; font-weight: bold;
-            text-transform: uppercase; cursor: pointer;
-            opacity: 0.3; transition: opacity 0.3s;
+            background: none; 
+            border: none;
+            font-family: inherit; 
+            font-size: 0.9rem; 
+            font-weight: bold;
+            text-transform: uppercase; 
+            cursor: pointer;
+            opacity: 0.3; 
+            transition: opacity 0.3s;
+            flex: 1;
+            text-align: center;
+            padding: 5px 0;
         }
 
-        .rolodex-btn.active { opacity: 1; border-bottom: 2px solid #1a1a1a; }
+        .rolodex-btn.active { 
+            opacity: 1; 
+            border-bottom: 2px solid #1a1a1a; 
+        }
         
-        /* RESTORED: Back to the original 700px height */
-        .bandcamp-embed, .scroll-view {
+        /* All tabs same size with reduced shadow */
+        .bandcamp-embed, .scroll-view, .radio-embed-container {
             width: 100%;
-            height: 700px;
+            height: 680px;
             border: 0;
             background: white;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 1px;
+            overflow: hidden;
         }
 
-        /* Artist Scroll View */
+        /* Artist Scroll View - ONLY this scrolls */
         .scroll-view {
             overflow-y: auto;
             text-align: left;
-            padding: 0; /* Remove padding so image hits the edges */
+            padding: 0;
+        }
+
+        /* Prevent scrolling on other elements */
+        .bandcamp-embed, .radio-embed-container {
+            overflow: hidden !important;
         }
 
         .artist-card {
@@ -170,37 +212,180 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* FIXED: Sharp 90-degree square images */
         .artist-image {
             width: 100%;
-            aspect-ratio: 1 / 1; /* Forces a perfect square */
+            aspect-ratio: 1 / 1;
             object-fit: cover;
             display: block;
-            border-radius: 0 !important; /* Sharp 90 degree angles */
+            border-radius: 0 !important;
             margin-bottom: 15px;
         }
 
         .artist-info {
-            padding: 0 20px; /* Add padding back to text only */
+            padding: 0 20px;
         }
 
         .artist-name {
             font-size: 1.5rem;
-            font-weight: bold; /* Bold Title */
+            font-weight: bold;
             margin-bottom: 5px;
         }
 
         .artist-description {
-            font-weight: normal; /* Regular Description */
+            font-weight: normal;
             font-size: 1rem;
             color: #444;
         }
 
         #view-radio, #view-artists { display: none; }
         
+        /* Radio Player Styles - FIXED HEIGHT */
+        .radio-embed-container {
+            display: flex;
+            flex-direction: column;
+            height: 680px;
+            background: #ffffff;
+        }
+
+        .radio-player-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .radio-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            overflow: hidden;
+        }
+
+        /* RESPONSIVE ADJUSTMENTS */
         @media (max-width: 600px) {
-            .text-style { font-size: 2.2rem; }
-            .bandcamp-embed, .scroll-view { height: 600px; }
+            .text-style { 
+                font-size: 2rem; 
+            }
+            
+            .bandcamp-embed, .scroll-view, .radio-embed-container { 
+                height: 560px; 
+            }
+            
+            .radio-embed-container {
+                height: 560px;
+            }
+            
+            #countdown { 
+                padding-top: 20px; 
+                font-size: 1.8rem;
+            }
+            
+            .footer-text { 
+                padding-bottom: 20px;
+                font-size: 1.8rem;
+            }
+            
+            .rolodex-btn {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .bandcamp-embed, .scroll-view, .radio-embed-container { 
+                height: 520px;
+            }
+            
+            .radio-embed-container {
+                height: 520px;
+            }
+            
+            #countdown {
+                font-size: 1.6rem;
+                padding-top: 15px;
+            }
+            
+            .footer-text {
+                font-size: 1.6rem;
+                padding-bottom: 15px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .text-style { 
+                font-size: 1.5rem;
+            }
+            
+            .bandcamp-embed, .scroll-view, .radio-embed-container { 
+                height: 480px;
+            }
+            
+            .radio-embed-container {
+                height: 480px;
+            }
+            
+            #countdown {
+                font-size: 1.4rem;
+                padding-top: 10px;
+            }
+            
+            .footer-text {
+                font-size: 1.4rem;
+                padding-bottom: 10px;
+            }
+            
+            .rolodex-btn {
+                font-size: 0.7rem;
+            }
+            
+            .rolodex-nav {
+                gap: 10px;
+            }
+        }
+        
+        /* Small mobile devices */
+        @media (max-width: 350px) {
+            .bandcamp-embed, .scroll-view, .radio-embed-container { 
+                height: 440px;
+            }
+            
+            .radio-embed-container {
+                height: 440px;
+            }
+            
+            .rolodex-btn {
+                font-size: 0.65rem;
+                padding: 3px 0;
+            }
+            
+            .rolodex-nav {
+                gap: 5px;
+            }
+        }
+        
+        /* Very small devices */
+        @media (max-height: 700px) {
+            .bandcamp-embed, .scroll-view, .radio-embed-container { 
+                height: 460px;
+            }
+            
+            .radio-embed-container {
+                height: 460px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .bandcamp-embed, .scroll-view, .radio-embed-container { 
+                height: 420px;
+            }
+            
+            .radio-embed-container {
+                height: 420px;
+            }
+            
+            .text-style {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
@@ -223,8 +408,10 @@
                 <iframe class="bandcamp-embed" src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=0687f5/transparent=true/tracklist=true/tracks=790976255/esig=ead858226d81a6019825b75769171b20/" seamless></iframe>
             </div>
 
-            <div id="view-radio">
-                <iframe src="radio.html" class="bandcamp-embed" frameborder="0"></iframe>
+            <div id="view-radio" style="display: none;">
+                <div class="radio-embed-container">
+                    <iframe src="radio1.html" class="radio-iframe" title="Radio Player"></iframe>
+                </div>
             </div>
 
             <div id="view-artists" class="scroll-view">
@@ -238,13 +425,20 @@
                 <div class="artist-card">
                     <img src="vajonkylogo.png" class="artist-image">
                     <div class="artist-info">
-                        <h2 class="artist-name">Vajonky</h2>
-                        <p class="artist-description">lol hey its me Vajonky here. Just wanted to say guys, thanks for the vajonking love recently. Love it. Dont forget to love! Support your locals. Support us. Supporing button, PRESSED! Button! Let's go to Iceland bro. Yes. Let's. Rich Money Dude, Eric Good Money, Broke Man Benson. He has it all. He plays freely in the sand of identity. It is his sandbox. His way of simple living. His way of way. Lol guys its me Vajonky. Vajonky Jonk! Let's do this damn thing. Let's do it.</p>
+                        <h2 class="artist-name">VAJONKY</h2>
+                        <p class="artist-description">RICH MONEY DUDE - ERIC GOOD MONEY - BROKE MAN BENSON
+FREE THE SOUND TILL EVERYONE IS DEAF, THEN FREE THE SOUL. PEACE AND LOVE TO ALL. THEY HIT EM 5 TIMES 3 TIMES LETHAL LOOK OUT FOR YOUR NEIGHBORS MAY THE SOUND UNITE. FREE PALESTINE.
+freedomtothesound.com</p>
                     </div>
-
-
                 </div>
+                <div class="artist-card">
+                    <img src="djbmlogo.png" class="artist-image">
+                    <div class="artist-info">
+                        <h2 class="artist-name">DJ BROTHER $$$</h2>
+                        <p class="artist-description">Hello $$$$ I'm $$$$DJ$MY LI$$FE IS NOTHING BUT$$ MONEY I FO TO THE$MART GET MY MONEY MY SKIN AS $$ BROWN AS MY MONEY IM GREEN AS A GRA$$$HOPPER I HAVE 25 TOE$$$ AND CROAK LIKE A FRO&&& IM AS TALL A$ ANT AND AS LOUD AS A TRUÇCK MAY YOUR MONEY BE MART AND YOUR$$WORLDBE RICH DJ BROTHER $$$</p>
+                    </div>
                 </div>
+            </div>
 
         </div>
     </div>
