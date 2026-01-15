@@ -143,13 +143,11 @@
         html, body {
             height: 100%;
             width: 100%;
-            overflow: hidden;
         }
         
         body {
             background-color: #f8f8f8;
             min-height: 100vh;
-            height: 100vh;
             display: flex;
             flex-direction: column;
             font-family: "Trebuchet MS", Trebuchet, sans-serif;
@@ -176,15 +174,13 @@
         }
 
         #countdown { 
-            padding: 15px 0 5px 0;
+            padding-top: 15px;
             width: 100%;
-            flex-shrink: 0;
         }
         
         .footer-text { 
-            padding: 5px 0 15px 0;
+            padding-bottom: 15px;
             width: 100%;
-            flex-shrink: 0;
         }
         
         .container {
@@ -194,8 +190,9 @@
             align-items: center;
             flex: 1;
             padding: 10px 0;
-            overflow: hidden;
             min-height: 0;
+            overflow: hidden;
+            position: relative;
         }
         
         .bandcamp-wrapper {
@@ -245,7 +242,7 @@
             border-bottom: 2px solid #1a1a1a; 
         }
         
-        /* TAB CONTAINERS - ALL THE SAME HEIGHT */
+        /* TAB CONTAINERS */
         .tab-container {
             width: 100%;
             height: 100%;
@@ -307,6 +304,7 @@
             flex: 1;
             text-align: left;
             padding: 0;
+            -webkit-overflow-scrolling: touch;
         }
 
         .artist-card {
@@ -342,14 +340,64 @@
 
         #view-radio, #view-artists { display: none; }
 
-        /* MOBILE FIXES */
+        /* MOBILE LAYOUT FIXES */
         @media (max-width: 768px) {
             body {
                 height: 100vh;
-                max-height: 100vh;
                 overflow: hidden;
             }
             
+            /* Simplify layout for mobile - stack everything vertically */
+            body {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                height: 100vh;
+            }
+            
+            #countdown {
+                padding-top: 10px;
+                padding-bottom: 5px;
+                flex-shrink: 0;
+                height: auto;
+                min-height: auto;
+            }
+            
+            .footer-text {
+                padding-top: 5px;
+                padding-bottom: 10px;
+                flex-shrink: 0;
+                height: auto;
+                min-height: auto;
+            }
+            
+            .container {
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
+                padding: 0;
+            }
+            
+            .bandcamp-wrapper {
+                height: 100%;
+                max-height: 100%;
+                padding: 10px 15px;
+                overflow: hidden;
+            }
+            
+            /* Rolodex container */
+            .tab-container {
+                height: 100%;
+                max-height: 100%;
+                overflow: hidden;
+            }
+            
+            .artists-container {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Adjust bouncing logo for mobile */
             #bouncing-logo {
                 width: 120px;
                 height: 120px;
@@ -361,23 +409,13 @@
             }
             
             #countdown { 
-                padding: 10px 0 5px 0;
                 font-size: 1.8rem;
+                padding: 15px 0 5px 0;
             }
             
             .footer-text { 
-                padding: 5px 0 10px 0;
                 font-size: 1.8rem;
-            }
-            
-            .container {
-                padding: 5px 0;
-                overflow: visible;
-            }
-            
-            .bandcamp-wrapper {
-                padding: 0 15px;
-                overflow: hidden;
+                padding: 5px 0 15px 0;
             }
             
             .rolodex-nav {
@@ -397,9 +435,16 @@
                 font-size: 0.9rem;
             }
             
-            /* Ensure artists tab scrolls properly */
-            .artists-container {
-                -webkit-overflow-scrolling: touch;
+            /* Make sure iframes don't overflow */
+            .music-container,
+            .radio-container {
+                max-height: 100%;
+                overflow: hidden;
+            }
+            
+            .bandcamp-embed,
+            .radio-embed {
+                max-height: 100%;
             }
         }
         
@@ -415,12 +460,12 @@
             
             #countdown {
                 font-size: 1.6rem;
-                padding: 8px 0 3px 0;
+                padding: 12px 0 4px 0;
             }
             
             .footer-text {
                 font-size: 1.6rem;
-                padding: 3px 0 8px 0;
+                padding: 4px 0 12px 0;
             }
             
             .rolodex-nav {
@@ -434,7 +479,7 @@
             }
             
             .bandcamp-wrapper {
-                padding: 0 10px;
+                padding: 8px 10px;
             }
             
             .artist-info {
@@ -462,12 +507,12 @@
             
             #countdown {
                 font-size: 1.4rem;
-                padding: 6px 0 2px 0;
+                padding: 10px 0 3px 0;
             }
             
             .footer-text {
                 font-size: 1.4rem;
-                padding: 2px 0 6px 0;
+                padding: 3px 0 10px 0;
             }
             
             .rolodex-btn {
@@ -482,7 +527,7 @@
             }
             
             .bandcamp-wrapper {
-                padding: 0 8px;
+                padding: 6px 8px;
             }
             
             .artist-info {
@@ -510,12 +555,12 @@
             
             #countdown {
                 font-size: 1.2rem;
-                padding: 5px 0 2px 0;
+                padding: 8px 0 2px 0;
             }
             
             .footer-text {
                 font-size: 1.2rem;
-                padding: 2px 0 5px 0;
+                padding: 2px 0 8px 0;
             }
             
             .rolodex-btn {
@@ -524,6 +569,7 @@
             
             .rolodex-nav {
                 gap: 5px;
+                margin-bottom: 5px;
             }
             
             .artist-name {
@@ -543,12 +589,12 @@
             
             #countdown {
                 font-size: 1.5rem;
-                padding: 8px 0 3px 0;
+                padding: 10px 0 3px 0;
             }
             
             .footer-text {
                 font-size: 1.5rem;
-                padding: 3px 0 8px 0;
+                padding: 3px 0 10px 0;
             }
             
             .rolodex-nav {
@@ -560,6 +606,11 @@
                 margin-bottom: 20px;
                 padding-bottom: 15px;
             }
+            
+            #bouncing-logo {
+                width: 80px;
+                height: 80px;
+            }
         }
         
         @media (max-height: 600px) and (max-width: 768px) {
@@ -569,12 +620,12 @@
             
             #countdown {
                 font-size: 1.3rem;
-                padding: 6px 0 2px 0;
+                padding: 8px 0 2px 0;
             }
             
             .footer-text {
                 font-size: 1.3rem;
-                padding: 2px 0 6px 0;
+                padding: 2px 0 8px 0;
             }
             
             .rolodex-nav {
@@ -598,6 +649,11 @@
             .artist-description {
                 font-size: 0.85rem;
             }
+            
+            #bouncing-logo {
+                width: 70px;
+                height: 70px;
+            }
         }
         
         @media (max-height: 500px) and (max-width: 768px) {
@@ -607,12 +663,12 @@
             
             #countdown {
                 font-size: 1.1rem;
-                padding: 4px 0 2px 0;
+                padding: 6px 0 1px 0;
             }
             
             .footer-text {
                 font-size: 1.1rem;
-                padding: 2px 0 4px 0;
+                padding: 1px 0 6px 0;
             }
             
             .rolodex-nav {
@@ -640,6 +696,11 @@
             
             .artist-description {
                 font-size: 0.75rem;
+            }
+            
+            #bouncing-logo {
+                width: 60px;
+                height: 60px;
             }
         }
     </style>
@@ -704,6 +765,14 @@ freedomtothesound.com</p>
 
     <div class="footer-text text-style">January 22nd</div>
 
-    <script src="drawing.js"></script>
+    <script>
+        // Disable drawing on mobile
+        if (window.innerWidth > 768) {
+            // Only load drawing.js on desktop
+            const script = document.createElement('script');
+            script.src = 'drawing.js';
+            document.body.appendChild(script);
+        }
+    </script>
 </body>
 </html>
