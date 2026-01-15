@@ -56,23 +56,37 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDrawing) addParticles(e.clientX, e.clientY);
     });
 
-    // Touch events - Fixed for scrolling
+    // Touch events - Updated to allow scrolling in .scroll-view
     document.addEventListener('touchstart', (e) => {
+        // Check if the touch is inside the artist scroll area
+        const isInsideScroll = e.target.closest('.scroll-view');
+        if (isInsideScroll) {
+            isDrawing = false; // Don't draw if we are trying to scroll
+            return;
+        }
+
         isDrawing = true;
         disableSelection();
         startMusic();
         const touch = e.touches[0];
         addParticles(touch.clientX, touch.clientY);
     });
+
     document.addEventListener('touchend', () => {
         isDrawing = false;
         enableSelection();
     });
+
     document.addEventListener('touchmove', (e) => {
         if (isDrawing) {
+            // Check if drawing was initiated inside the scroll area
+            const isInsideScroll = e.target.closest('.scroll-view');
+            if (isInsideScroll) return;
+
             const touch = e.touches[0];
             addParticles(touch.clientX, touch.clientY);
-            // Only stop scroll when drawing
+            
+            // Only stop scroll when drawing on the main background
             if (e.cancelable) e.preventDefault();
         }
     }, { passive: false });
@@ -99,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 particles.splice(i, 1);
             } else {
                 p.alpha = 1 - (age / 4);
-                // Set to black particles
                 ctx.fillStyle = `rgba(0, 0, 0, ${p.alpha})`;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
