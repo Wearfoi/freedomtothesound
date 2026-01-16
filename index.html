@@ -30,12 +30,13 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* DVD Bounce Script with Rotation - Fixed */
+        /* DVD Bounce Script with Smooth Rotation - FIXED */
         let x = 0, y = 0, xSpeed = 2, ySpeed = 2, rotation = 0;
         let logoWidth = 250;
         let logoHeight = 250;
         let animationId = null;
         let lastTime = 0;
+        let rotationSpeed = 1; // Degrees per frame
         
         function initBounce() {
             const logo = document.getElementById('bouncing-logo');
@@ -48,6 +49,10 @@
             // Random starting position
             x = Math.random() * (window.innerWidth - logoWidth);
             y = Math.random() * (window.innerHeight - logoHeight);
+            
+            // Random direction
+            xSpeed = (Math.random() > 0.5 ? 1 : -1) * 2;
+            ySpeed = (Math.random() > 0.5 ? 1 : -1) * 2;
             
             // Ensure within bounds
             x = Math.max(0, Math.min(x, window.innerWidth - logoWidth));
@@ -72,40 +77,49 @@
             const deltaTime = currentTime - lastTime;
             lastTime = currentTime;
             
-            // Normalize speed (target 60fps = 16.67ms per frame)
-            const speedMultiplier = Math.min(deltaTime / 16.67, 2);
+            // Normalize speed for consistent animation regardless of frame rate
+            const speedFactor = Math.min(deltaTime / 16.67, 2); // Target 60fps = 16.67ms per frame
             
-            // Update position
-            x += xSpeed * speedMultiplier;
-            y += ySpeed * speedMultiplier;
+            // Update position with smooth movement
+            x += xSpeed * speedFactor;
+            y += ySpeed * speedFactor;
             
-            // Update rotation - THIS IS THE FIX!
-            rotation += 2 * speedMultiplier; // 2 degrees per frame
+            // Update rotation - CONTINUOUSLY, independent of bounce
+            rotation += rotationSpeed * speedFactor;
+            rotation = rotation % 360; // Keep rotation within 0-360 degrees
             
             // Bounce off edges
             const maxX = window.innerWidth - logoWidth;
             const maxY = window.innerHeight - logoHeight;
             
+            let bounced = false;
+            
             if (x >= maxX) {
                 x = maxX;
-                xSpeed *= -1;
+                xSpeed = -Math.abs(xSpeed); // Ensure negative direction
+                bounced = true;
             } else if (x <= 0) {
                 x = 0;
-                xSpeed *= -1;
+                xSpeed = Math.abs(xSpeed); // Ensure positive direction
+                bounced = true;
             }
             
             if (y >= maxY) {
                 y = maxY;
-                ySpeed *= -1;
+                ySpeed = -Math.abs(ySpeed); // Ensure negative direction
+                bounced = true;
             } else if (y <= 0) {
                 y = 0;
-                ySpeed *= -1;
+                ySpeed = Math.abs(ySpeed); // Ensure positive direction
+                bounced = true;
             }
             
-            // Apply transform with rotation
+            // Apply transform with rotation - SMOOTH AND CONTINUOUS
             const logo = document.getElementById('bouncing-logo');
             if (logo) {
-                logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+                // Use 3D transform for hardware acceleration
+                logo.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
+                logo.style.webkitTransform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
             }
             
             // Continue animation
@@ -125,12 +139,20 @@
                     // Keep within bounds
                     if (x + logoWidth > window.innerWidth) {
                         x = window.innerWidth - logoWidth;
+                        xSpeed = -Math.abs(xSpeed);
                     }
                     if (y + logoHeight > window.innerHeight) {
                         y = window.innerHeight - logoHeight;
+                        ySpeed = -Math.abs(ySpeed);
                     }
-                    if (x < 0) x = 0;
-                    if (y < 0) y = 0;
+                    if (x < 0) {
+                        x = 0;
+                        xSpeed = Math.abs(xSpeed);
+                    }
+                    if (y < 0) {
+                        y = 0;
+                        ySpeed = Math.abs(ySpeed);
+                    }
                 }
             }, 100);
         });
@@ -159,8 +181,13 @@
             // Start countdown updates
             setInterval(updateCountdown, 1000);
             
-            // Initialize logo animation
-            setTimeout(initBounce, 100);
+            // Initialize logo animation - with delay to ensure DOM is fully ready
+            setTimeout(function() {
+                // Only run bouncing logo on desktop (width > 768px)
+                if (window.innerWidth > 768) {
+                    initBounce();
+                }
+            }, 300);
         });
     </script>
     <style>
@@ -256,6 +283,7 @@
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             transform-origin: center center;
+            transition: transform 0.1s linear; /* Smooth transition */
         }
         
         .text-style {
@@ -584,18 +612,7 @@ freedomtothesound.com</p>
             document.body.appendChild(script);
         }
         
-        // Test: Force rotation to verify it works
-        setTimeout(() => {
-            const logo = document.getElementById('bouncing-logo');
-            if (logo) {
-                console.log('Logo animation test - rotation should be working');
-                // Quick test: manually rotate to verify
-                logo.style.transform = 'translate(100px, 100px) rotate(45deg)';
-                setTimeout(() => {
-                    logo.style.transform = 'translate(150px, 150px) rotate(90deg)';
-                }, 500);
-            }
-        }, 1000);
+        // Remove the test code that was interfering with the animation
     </script>
 </body>
 </html>
