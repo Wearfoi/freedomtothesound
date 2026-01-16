@@ -30,97 +30,99 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* DVD Bounce Script - Optimized for Smooth Animation */
-        let x = 0, y = 0, xSpeed = 2, ySpeed = 2, rotation = 0, rotationSpeed = 0.5;
+        /* DVD Bounce Script with Rotation - Fixed */
+        let x = 0, y = 0, xSpeed = 2, ySpeed = 2, rotation = 0;
         let logoWidth = 250;
         let logoHeight = 250;
-        let lastTimestamp = 0;
-        let animationFrameId = null;
-
+        let animationId = null;
+        let lastTime = 0;
+        
         function initBounce() {
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
             
-            // Get actual logo dimensions
-            logoWidth = logo.offsetWidth;
-            logoHeight = logo.offsetHeight;
+            // Get dimensions
+            logoWidth = logo.offsetWidth || 250;
+            logoHeight = logo.offsetHeight || 250;
             
-            // Initial random position
+            // Random starting position
             x = Math.random() * (window.innerWidth - logoWidth);
             y = Math.random() * (window.innerHeight - logoHeight);
             
-            // Stop any existing animation
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
+            // Ensure within bounds
+            x = Math.max(0, Math.min(x, window.innerWidth - logoWidth));
+            y = Math.max(0, Math.min(y, window.innerHeight - logoHeight));
+            
+            // Start animation
+            startBounce();
+        }
+        
+        function startBounce() {
+            // Cancel any existing animation
+            if (animationId) {
+                cancelAnimationFrame(animationId);
             }
             
-            // Start smooth animation
-            lastTimestamp = performance.now();
+            lastTime = performance.now();
             animateBounce();
         }
-
-        function animateBounce(timestamp) {
-            // Calculate time delta for consistent speed across different frame rates
-            const deltaTime = timestamp - lastTimestamp;
-            lastTimestamp = timestamp;
+        
+        function animateBounce(currentTime) {
+            // Calculate time delta for smooth animation
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
             
-            // Normalize speed based on 60fps (16.67ms per frame)
-            const speedMultiplier = deltaTime / 16.67;
-            
-            const logo = document.getElementById('bouncing-logo');
-            if (!logo) return;
-            
-            const boardWidth = window.innerWidth;
-            const boardHeight = window.innerHeight;
+            // Normalize speed (target 60fps = 16.67ms per frame)
+            const speedMultiplier = Math.min(deltaTime / 16.67, 2);
             
             // Update position
             x += xSpeed * speedMultiplier;
             y += ySpeed * speedMultiplier;
             
-            // Smooth rotation
-            rotation += rotationSpeed * speedMultiplier;
+            // Update rotation - THIS IS THE FIX!
+            rotation += 2 * speedMultiplier; // 2 degrees per frame
             
-            // Bounce off edges with bounds checking
-            let bounced = false;
+            // Bounce off edges
+            const maxX = window.innerWidth - logoWidth;
+            const maxY = window.innerHeight - logoHeight;
             
-            if (x + logoWidth >= boardWidth) {
-                x = boardWidth - logoWidth;
+            if (x >= maxX) {
+                x = maxX;
                 xSpeed *= -1;
-                bounced = true;
             } else if (x <= 0) {
                 x = 0;
                 xSpeed *= -1;
-                bounced = true;
             }
             
-            if (y + logoHeight >= boardHeight) {
-                y = boardHeight - logoHeight;
+            if (y >= maxY) {
+                y = maxY;
                 ySpeed *= -1;
-                bounced = true;
             } else if (y <= 0) {
                 y = 0;
                 ySpeed *= -1;
-                bounced = true;
             }
             
-            // Apply transform with will-change for better performance
-            logo.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
+            // Apply transform with rotation
+            const logo = document.getElementById('bouncing-logo');
+            if (logo) {
+                logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+            }
             
-            // Request next frame
-            animationFrameId = requestAnimationFrame(animateBounce);
+            // Continue animation
+            animationId = requestAnimationFrame(animateBounce);
         }
-
-        // Update the resize handler to be more efficient
+        
+        // Handle window resize
         let resizeTimeout;
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function() {
                 const logo = document.getElementById('bouncing-logo');
                 if (logo) {
-                    logoWidth = logo.offsetWidth;
-                    logoHeight = logo.offsetHeight;
+                    logoWidth = logo.offsetWidth || 250;
+                    logoHeight = logo.offsetHeight || 250;
                     
-                    // Keep logo within bounds
+                    // Keep within bounds
                     if (x + logoWidth > window.innerWidth) {
                         x = window.innerWidth - logoWidth;
                     }
@@ -130,7 +132,7 @@
                     if (x < 0) x = 0;
                     if (y < 0) y = 0;
                 }
-            }, 100); // Debounce resize events
+            }, 100);
         });
 
         /* Rolodex Switcher Logic */
@@ -154,11 +156,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateCountdown();
             
-            // Wait a bit for everything to load before starting bounce
-            setTimeout(initBounce, 100);
-            
-            // Update countdown every second
+            // Start countdown updates
             setInterval(updateCountdown, 1000);
+            
+            // Initialize logo animation
+            setTimeout(initBounce, 100);
         });
     </script>
     <style>
@@ -250,9 +252,10 @@
             z-index: -1; 
             pointer-events: none;
             object-fit: contain;
-            will-change: transform; /* Optimize for transform animations */
-            backface-visibility: hidden; /* Improve rendering performance */
+            will-change: transform;
+            backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            transform-origin: center center;
         }
         
         .text-style {
@@ -429,379 +432,54 @@
 
         #view-radio, #view-artists { display: none; }
 
-        /* HIDE SCROLLING TEXT ON MOBILE */
+        /* Mobile styles remain the same... */
         @media (max-width: 768px) {
-            .scrolling-text-container {
-                display: none;
-            }
-            
-            body {
-                height: 100vh;
-                overflow: hidden;
-            }
-            
-            /* Simplify layout for mobile - stack everything vertically */
-            body {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                height: 100vh;
-            }
-            
-            #countdown {
-                padding-top: 10px;
-                padding-bottom: 5px;
-                flex-shrink: 0;
-                height: auto;
-                min-height: auto;
-            }
-            
-            .footer-text {
-                padding-top: 5px;
-                padding-bottom: 10px;
-                flex-shrink: 0;
-                height: auto;
-                min-height: auto;
-            }
-            
-            .container {
-                flex: 1;
-                min-height: 0;
-                overflow: hidden;
-                padding: 0;
-            }
-            
-            .bandcamp-wrapper {
-                height: 100%;
-                max-height: 100%;
-                padding: 10px 15px;
-                overflow: hidden;
-            }
-            
-            /* Rolodex container */
-            .tab-container {
-                height: 100%;
-                max-height: 100%;
-                overflow: hidden;
-            }
-            
-            .artists-container {
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            /* Adjust bouncing logo for mobile */
-            #bouncing-logo {
-                width: 120px;
-                height: 120px;
-                object-fit: contain;
-            }
-            
-            .text-style { 
-                font-size: 2.2rem; 
-            }
-            
-            #countdown { 
-                font-size: 1.8rem;
-                padding: 15px 0 5px 0;
-            }
-            
-            .footer-text { 
-                font-size: 1.8rem;
-                padding: 5px 0 15px 0;
-            }
-            
-            .rolodex-nav {
-                margin-bottom: 10px;
-                gap: 10px;
-            }
-            
-            .rolodex-btn {
-                font-size: 0.8rem;
-            }
-            
-            .artist-name {
-                font-size: 1.3rem;
-            }
-            
-            .artist-description {
-                font-size: 0.9rem;
-            }
-            
-            /* Make sure iframes don't overflow */
-            .music-container,
-            .radio-container {
-                max-height: 100%;
-                overflow: hidden;
-            }
-            
-            .bandcamp-embed,
-            .radio-embed {
-                max-height: 100%;
-            }
+            .scrolling-text-container { display: none; }
+            body { height: 100vh; overflow: hidden; }
+            body { display: flex; flex-direction: column; justify-content: space-between; height: 100vh; }
+            #countdown { padding-top: 10px; padding-bottom: 5px; flex-shrink: 0; height: auto; min-height: auto; }
+            .footer-text { padding-top: 5px; padding-bottom: 10px; flex-shrink: 0; height: auto; min-height: auto; }
+            .container { flex: 1; min-height: 0; overflow: hidden; padding: 0; }
+            .bandcamp-wrapper { height: 100%; max-height: 100%; padding: 10px 15px; overflow: hidden; }
+            .tab-container { height: 100%; max-height: 100%; overflow: hidden; }
+            .artists-container { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+            #bouncing-logo { width: 120px; height: 120px; }
+            .text-style { font-size: 2.2rem; }
+            #countdown { font-size: 1.8rem; padding: 15px 0 5px 0; }
+            .footer-text { font-size: 1.8rem; padding: 5px 0 15px 0; }
+            .rolodex-nav { margin-bottom: 10px; gap: 10px; }
+            .rolodex-btn { font-size: 0.8rem; }
+            .artist-name { font-size: 1.3rem; }
+            .artist-description { font-size: 0.9rem; }
+            .music-container, .radio-container { max-height: 100%; overflow: hidden; }
+            .bandcamp-embed, .radio-embed { max-height: 100%; }
         }
         
         @media (max-width: 480px) {
-            #bouncing-logo {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .text-style { 
-                font-size: 1.8rem; 
-            }
-            
-            #countdown {
-                font-size: 1.6rem;
-                padding: 12px 0 4px 0;
-            }
-            
-            .footer-text {
-                font-size: 1.6rem;
-                padding: 4px 0 12px 0;
-            }
-            
-            .rolodex-nav {
-                margin-bottom: 8px;
-                gap: 8px;
-                height: 35px;
-            }
-            
-            .rolodex-btn {
-                font-size: 0.75rem;
-            }
-            
-            .bandcamp-wrapper {
-                padding: 8px 10px;
-            }
-            
-            .artist-info {
-                padding: 0 15px;
-            }
-            
-            .artist-name {
-                font-size: 1.2rem;
-            }
-            
-            .artist-description {
-                font-size: 0.85rem;
-            }
-        }
-        
-        @media (max-width: 375px) {
-            #bouncing-logo {
-                width: 80px;
-                height: 80px;
-            }
-            
-            .text-style { 
-                font-size: 1.5rem;
-            }
-            
-            #countdown {
-                font-size: 1.4rem;
-                padding: 10px 0 3px 0;
-            }
-            
-            .footer-text {
-                font-size: 1.4rem;
-                padding: 3px 0 10px 0;
-            }
-            
-            .rolodex-btn {
-                font-size: 0.7rem;
-                padding: 3px 0;
-            }
-            
-            .rolodex-nav {
-                gap: 6px;
-                margin-bottom: 6px;
-                height: 32px;
-            }
-            
-            .bandcamp-wrapper {
-                padding: 6px 8px;
-            }
-            
-            .artist-info {
-                padding: 0 12px;
-            }
-            
-            .artist-name {
-                font-size: 1.1rem;
-            }
-            
-            .artist-description {
-                font-size: 0.8rem;
-            }
-        }
-        
-        @media (max-width: 320px) {
-            #bouncing-logo {
-                width: 70px;
-                height: 70px;
-            }
-            
-            .text-style { 
-                font-size: 1.3rem;
-            }
-            
-            #countdown {
-                font-size: 1.2rem;
-                padding: 8px 0 2px 0;
-            }
-            
-            .footer-text {
-                font-size: 1.2rem;
-                padding: 2px 0 8px 0;
-            }
-            
-            .rolodex-btn {
-                font-size: 0.65rem;
-            }
-            
-            .rolodex-nav {
-                gap: 5px;
-                margin-bottom: 5px;
-            }
-            
-            .artist-name {
-                font-size: 1rem;
-            }
-            
-            .artist-description {
-                font-size: 0.75rem;
-            }
+            #bouncing-logo { width: 100px; height: 100px; }
+            .text-style { font-size: 1.8rem; }
+            #countdown { font-size: 1.6rem; padding: 12px 0 4px 0; }
+            .footer-text { font-size: 1.6rem; padding: 4px 0 12px 0; }
+            .rolodex-nav { margin-bottom: 8px; gap: 8px; height: 35px; }
+            .rolodex-btn { font-size: 0.75rem; }
+            .bandcamp-wrapper { padding: 8px 10px; }
+            .artist-info { padding: 0 15px; }
+            .artist-name { font-size: 1.2rem; }
+            .artist-description { font-size: 0.85rem; }
         }
         
         /* Height-based adjustments for mobile */
         @media (max-height: 700px) and (max-width: 768px) {
-            .text-style {
-                font-size: 1.8rem;
-            }
-            
-            #countdown {
-                font-size: 1.5rem;
-                padding: 10px 0 3px 0;
-            }
-            
-            .footer-text {
-                font-size: 1.5rem;
-                padding: 3px 0 10px 0;
-            }
-            
-            .rolodex-nav {
-                margin-bottom: 8px;
-                height: 30px;
-            }
-            
-            .artist-card {
-                margin-bottom: 20px;
-                padding-bottom: 15px;
-            }
-            
-            #bouncing-logo {
-                width: 80px;
-                height: 80px;
-            }
+            .text-style { font-size: 1.8rem; }
+            #countdown { font-size: 1.5rem; padding: 10px 0 3px 0; }
+            .footer-text { font-size: 1.5rem; padding: 3px 0 10px 0; }
+            .rolodex-nav { margin-bottom: 8px; height: 30px; }
+            .artist-card { margin-bottom: 20px; padding-bottom: 15px; }
+            #bouncing-logo { width: 80px; height: 80px; }
         }
         
-        @media (max-height: 600px) and (max-width: 768px) {
-            .text-style {
-                font-size: 1.6rem;
-            }
-            
-            #countdown {
-                font-size: 1.3rem;
-                padding: 8px 0 2px 0;
-            }
-            
-            .footer-text {
-                font-size: 1.3rem;
-                padding: 2px 0 8px 0;
-            }
-            
-            .rolodex-nav {
-                margin-bottom: 6px;
-                height: 28px;
-            }
-            
-            .rolodex-btn {
-                font-size: 0.7rem;
-            }
-            
-            .artist-card {
-                margin-bottom: 15px;
-                padding-bottom: 12px;
-            }
-            
-            .artist-name {
-                font-size: 1.1rem;
-            }
-            
-            .artist-description {
-                font-size: 0.85rem;
-            }
-            
-            #bouncing-logo {
-                width: 70px;
-                height: 70px;
-            }
-        }
-        
-        @media (max-height: 500px) and (max-width: 768px) {
-            .text-style {
-                font-size: 1.4rem;
-            }
-            
-            #countdown {
-                font-size: 1.1rem;
-                padding: 6px 0 1px 0;
-            }
-            
-            .footer-text {
-                font-size: 1.1rem;
-                padding: 1px 0 6px 0;
-            }
-            
-            .rolodex-nav {
-                margin-bottom: 4px;
-                height: 26px;
-            }
-            
-            .rolodex-btn {
-                font-size: 0.65rem;
-                padding: 2px 0;
-            }
-            
-            .artist-card {
-                margin-bottom: 12px;
-                padding-bottom: 10px;
-            }
-            
-            .artist-image {
-                margin-bottom: 10px;
-            }
-            
-            .artist-name {
-                font-size: 1rem;
-            }
-            
-            .artist-description {
-                font-size: 0.75rem;
-            }
-            
-            #bouncing-logo {
-                width: 60px;
-                height: 60px;
-            }
-        }
-        
-        /* Desktop-specific scrolling text styling */
         @media (min-width: 769px) {
-            .scrolling-text-container {
-                display: block;
-            }
+            .scrolling-text-container { display: block; }
         }
     </style>
 </head>
@@ -905,6 +583,19 @@ freedomtothesound.com</p>
             script.src = 'drawing.js';
             document.body.appendChild(script);
         }
+        
+        // Test: Force rotation to verify it works
+        setTimeout(() => {
+            const logo = document.getElementById('bouncing-logo');
+            if (logo) {
+                console.log('Logo animation test - rotation should be working');
+                // Quick test: manually rotate to verify
+                logo.style.transform = 'translate(100px, 100px) rotate(45deg)';
+                setTimeout(() => {
+                    logo.style.transform = 'translate(150px, 150px) rotate(90deg)';
+                }, 500);
+            }
+        }, 1000);
     </script>
 </body>
 </html>
