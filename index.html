@@ -30,11 +30,13 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* DVD Bounce Script - Fixed for Mobile */
-        let x, y, xSpeed = 0.34, ySpeed = 0.34, rotation = 0, rotationSpeed = 0.2;
+        /* DVD Bounce Script - Optimized for Smooth Animation */
+        let x = 0, y = 0, xSpeed = 2, ySpeed = 2, rotation = 0, rotationSpeed = 0.5;
         let logoWidth = 250;
         let logoHeight = 250;
-        
+        let lastTimestamp = 0;
+        let animationFrameId = null;
+
         function initBounce() {
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
@@ -43,72 +45,92 @@
             logoWidth = logo.offsetWidth;
             logoHeight = logo.offsetHeight;
             
-            logo.onload = function() {
-                logoWidth = logo.offsetWidth;
-                logoHeight = logo.offsetHeight;
-                x = Math.random() * (window.innerWidth - logoWidth);
-                y = Math.random() * (window.innerHeight - logoHeight);
-                startBounce();
-            };
-            if (logo.complete) {
-                logoWidth = logo.offsetWidth;
-                logoHeight = logo.offsetHeight;
-                x = Math.random() * (window.innerWidth - logoWidth);
-                y = Math.random() * (window.innerHeight - logoHeight);
-                startBounce();
+            // Initial random position
+            x = Math.random() * (window.innerWidth - logoWidth);
+            y = Math.random() * (window.innerHeight - logoHeight);
+            
+            // Stop any existing animation
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
             }
+            
+            // Start smooth animation
+            lastTimestamp = performance.now();
+            animateBounce();
         }
-        
-        function bounceLogo() {
+
+        function animateBounce(timestamp) {
+            // Calculate time delta for consistent speed across different frame rates
+            const deltaTime = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
+            
+            // Normalize speed based on 60fps (16.67ms per frame)
+            const speedMultiplier = deltaTime / 16.67;
+            
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
+            
             const boardWidth = window.innerWidth;
             const boardHeight = window.innerHeight;
             
-            // Update logo dimensions if they changed
-            logoWidth = logo.offsetWidth;
-            logoHeight = logo.offsetHeight;
+            // Update position
+            x += xSpeed * speedMultiplier;
+            y += ySpeed * speedMultiplier;
             
-            x += xSpeed;
-            y += ySpeed;
-            rotation += rotationSpeed;
+            // Smooth rotation
+            rotation += rotationSpeed * speedMultiplier;
             
-            // Bounce off edges
-            if (x + logoWidth >= boardWidth || x <= 0) {
+            // Bounce off edges with bounds checking
+            let bounced = false;
+            
+            if (x + logoWidth >= boardWidth) {
+                x = boardWidth - logoWidth;
                 xSpeed *= -1;
-                // Ensure logo stays within bounds
-                if (x <= 0) x = 0;
-                if (x + logoWidth >= boardWidth) x = boardWidth - logoWidth;
-            }
-            if (y + logoHeight >= boardHeight || y <= 0) {
-                ySpeed *= -1;
-                // Ensure logo stays within bounds
-                if (y <= 0) y = 0;
-                if (y + logoHeight >= boardHeight) y = boardHeight - logoHeight;
+                bounced = true;
+            } else if (x <= 0) {
+                x = 0;
+                xSpeed *= -1;
+                bounced = true;
             }
             
-            logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
-        }
-
-        function startBounce() {
-            function animate() { bounceLogo(); requestAnimationFrame(animate); }
-            animate();
-        }
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            const logo = document.getElementById('bouncing-logo');
-            if (logo) {
-                // Keep logo within bounds on resize
-                if (x + logo.offsetWidth > window.innerWidth) {
-                    x = window.innerWidth - logo.offsetWidth;
-                }
-                if (y + logo.offsetHeight > window.innerHeight) {
-                    y = window.innerHeight - logo.offsetHeight;
-                }
-                if (x < 0) x = 0;
-                if (y < 0) y = 0;
+            if (y + logoHeight >= boardHeight) {
+                y = boardHeight - logoHeight;
+                ySpeed *= -1;
+                bounced = true;
+            } else if (y <= 0) {
+                y = 0;
+                ySpeed *= -1;
+                bounced = true;
             }
+            
+            // Apply transform with will-change for better performance
+            logo.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
+            
+            // Request next frame
+            animationFrameId = requestAnimationFrame(animateBounce);
+        }
+
+        // Update the resize handler to be more efficient
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                const logo = document.getElementById('bouncing-logo');
+                if (logo) {
+                    logoWidth = logo.offsetWidth;
+                    logoHeight = logo.offsetHeight;
+                    
+                    // Keep logo within bounds
+                    if (x + logoWidth > window.innerWidth) {
+                        x = window.innerWidth - logoWidth;
+                    }
+                    if (y + logoHeight > window.innerHeight) {
+                        y = window.innerHeight - logoHeight;
+                    }
+                    if (x < 0) x = 0;
+                    if (y < 0) y = 0;
+                }
+            }, 100); // Debounce resize events
         });
 
         /* Rolodex Switcher Logic */
@@ -131,7 +153,9 @@
         // Initialize everything when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             updateCountdown();
-            initBounce();
+            
+            // Wait a bit for everything to load before starting bounce
+            setTimeout(initBounce, 100);
             
             // Update countdown every second
             setInterval(updateCountdown, 1000);
@@ -226,7 +250,9 @@
             z-index: -1; 
             pointer-events: none;
             object-fit: contain;
-            transition: transform 0.1s linear;
+            will-change: transform; /* Optimize for transform animations */
+            backface-visibility: hidden; /* Improve rendering performance */
+            -webkit-backface-visibility: hidden;
         }
         
         .text-style {
