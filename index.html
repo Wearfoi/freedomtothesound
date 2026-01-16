@@ -30,11 +30,16 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* Classic DVD Screensaver with Smooth Spinning - PROPERLY DONE */
+        /* DVD Screensaver with EASY SPEED CONTROL */
         let logoX = 100, logoY = 100, logoVX = 2, logoVY = 2;
         let rotation = 0;
         let logoWidth = 250, logoHeight = 250;
         let animationFrameId = null;
+        
+        // ========== ADJUST THESE VALUES TO CHANGE SPEED ==========
+        const MOVE_SPEED = 1.5;    // Lower = slower movement (was 2)
+        const ROTATE_SPEED = 0.6;  // Lower = slower rotation (was 0.8)
+        // ========================================================
         
         function initDVDLogo() {
             const logo = document.getElementById('bouncing-logo');
@@ -48,9 +53,9 @@
             logoX = Math.random() * (window.innerWidth - logoWidth);
             logoY = Math.random() * (window.innerHeight - logoHeight);
             
-            // Random direction (but not too slow)
-            logoVX = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 1.5 + 1.5);
-            logoVY = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 1.5 + 1.5);
+            // Random direction using the adjustable speed
+            logoVX = (Math.random() > 0.5 ? 1 : -1) * MOVE_SPEED;
+            logoVY = (Math.random() > 0.5 ? 1 : -1) * MOVE_SPEED;
             
             // Start animation
             animateDVDLogo();
@@ -64,8 +69,8 @@
             logoX += logoVX;
             logoY += logoVY;
             
-            // Update rotation - smooth continuous spin
-            rotation += 0.8; // Adjust this number for faster/slower spin
+            // Update rotation using adjustable rotation speed
+            rotation += ROTATE_SPEED;
             if (rotation >= 360) rotation = 0;
             
             // Calculate boundaries
@@ -89,7 +94,7 @@
                 logoVY = -logoVY;
             }
             
-            // Apply transformation - THIS IS THE KEY: proper order of transforms
+            // Apply transformation
             logo.style.transform = `translate(${logoX}px, ${logoY}px) rotate(${rotation}deg)`;
             
             // Continue animation
@@ -218,7 +223,7 @@
             100% { transform: translateX(0%); }
         }
 
-        /* DVD LOGO - PERFECT SETTINGS */
+        /* DVD LOGO */
         #bouncing-logo {
             position: fixed;
             width: 250px;
@@ -550,9 +555,6 @@ freedomtothesound.com</p>
             script.src = 'drawing.js';
             document.body.appendChild(script);
         }
-        
-        // Simple console check to verify animation is starting
-        console.log('DVD Logo animation should be running on desktop');
     </script>
 </body>
 </html>
