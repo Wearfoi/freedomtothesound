@@ -30,65 +30,70 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* SIMPLE DVD BOUNCE WITH ROTATION - GUARANTEED TO WORK */
-        let x = 100, y = 100, xSpeed = 3, ySpeed = 3, rotation = 0;
+        /* Classic DVD Screensaver with Smooth Spinning - PROPERLY DONE */
+        let logoX = 100, logoY = 100, logoVX = 2, logoVY = 2;
+        let rotation = 0;
         let logoWidth = 250, logoHeight = 250;
-        let animationId = null;
+        let animationFrameId = null;
         
-        function initBounce() {
+        function initDVDLogo() {
             const logo = document.getElementById('bouncing-logo');
-            if (!logo) return;
+            if (!logo || window.innerWidth <= 768) return;
             
-            // Stop any existing animation
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
+            // Get actual logo dimensions
+            logoWidth = logo.offsetWidth;
+            logoHeight = logo.offsetHeight;
             
-            // Get window and logo dimensions
-            logoWidth = logo.offsetWidth || 250;
-            logoHeight = logo.offsetHeight || 250;
+            // Random starting position
+            logoX = Math.random() * (window.innerWidth - logoWidth);
+            logoY = Math.random() * (window.innerHeight - logoHeight);
+            
+            // Random direction (but not too slow)
+            logoVX = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 1.5 + 1.5);
+            logoVY = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 1.5 + 1.5);
             
             // Start animation
-            animateLogo();
+            animateDVDLogo();
         }
         
-        function animateLogo() {
+        function animateDVDLogo() {
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
             
             // Update position
-            x += xSpeed;
-            y += ySpeed;
+            logoX += logoVX;
+            logoY += logoVY;
             
-            // Update rotation - ALWAYS rotating
-            rotation += 1.5;
+            // Update rotation - smooth continuous spin
+            rotation += 0.8; // Adjust this number for faster/slower spin
             if (rotation >= 360) rotation = 0;
             
-            // Bounce off walls
+            // Calculate boundaries
             const maxX = window.innerWidth - logoWidth;
             const maxY = window.innerHeight - logoHeight;
             
-            if (x > maxX) {
-                x = maxX;
-                xSpeed = -Math.abs(xSpeed);
-            } else if (x < 0) {
-                x = 0;
-                xSpeed = Math.abs(xSpeed);
+            // Bounce off edges
+            if (logoX >= maxX) {
+                logoX = maxX;
+                logoVX = -logoVX;
+            } else if (logoX <= 0) {
+                logoX = 0;
+                logoVX = -logoVX;
             }
             
-            if (y > maxY) {
-                y = maxY;
-                ySpeed = -Math.abs(ySpeed);
-            } else if (y < 0) {
-                y = 0;
-                ySpeed = Math.abs(ySpeed);
+            if (logoY >= maxY) {
+                logoY = maxY;
+                logoVY = -logoVY;
+            } else if (logoY <= 0) {
+                logoY = 0;
+                logoVY = -logoVY;
             }
             
-            // Apply movement and rotation
-            logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+            // Apply transformation - THIS IS THE KEY: proper order of transforms
+            logo.style.transform = `translate(${logoX}px, ${logoY}px) rotate(${rotation}deg)`;
             
             // Continue animation
-            animationId = requestAnimationFrame(animateLogo);
+            animationFrameId = requestAnimationFrame(animateDVDLogo);
         }
         
         /* Rolodex Switcher Logic */
@@ -115,17 +120,22 @@
             // Start countdown updates
             setInterval(updateCountdown, 1000);
             
-            // Initialize logo animation on DESKTOP ONLY
+            // Initialize logo animation - DESKTOP ONLY
             if (window.innerWidth > 768) {
-                // Wait a moment for everything to load
-                setTimeout(initBounce, 500);
+                // Small delay to ensure everything is loaded
+                setTimeout(initDVDLogo, 300);
             }
             
             // Handle window resize
             window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && !animationId) {
-                    // Restart animation if it's desktop and not running
-                    initBounce();
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+                
+                // Restart on desktop
+                if (window.innerWidth > 768) {
+                    initDVDLogo();
                 }
             });
         });
@@ -136,7 +146,6 @@
         html, body {
             height: 100%;
             width: 100%;
-            overflow: hidden;
         }
         
         body {
@@ -148,6 +157,7 @@
             color: #1a1a1a;
             text-align: center;
             position: relative;
+            overflow: hidden;
         }
 
         /* HORIZONTAL SCROLLING TEXT BLOCKS - DESKTOP ONLY */
@@ -208,6 +218,7 @@
             100% { transform: translateX(0%); }
         }
 
+        /* DVD LOGO - PERFECT SETTINGS */
         #bouncing-logo {
             position: fixed;
             width: 250px;
@@ -215,10 +226,11 @@
             z-index: -1;
             pointer-events: none;
             object-fit: contain;
-            left: 0;
-            top: 0;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            transform-origin: center center;
+            will-change: transform;
             transform: translate(100px, 100px) rotate(0deg);
-            transition: transform 0.05s linear;
         }
         
         .text-style {
@@ -391,9 +403,10 @@
 
         #view-radio, #view-artists { display: none; }
 
-        /* Mobile styles */
+        /* Mobile styles - HIDE THE BOUNCING LOGO ON MOBILE */
         @media (max-width: 768px) {
             .scrolling-text-container { display: none; }
+            #bouncing-logo { display: none !important; }
             body { height: 100vh; overflow: hidden; }
             body { display: flex; flex-direction: column; justify-content: space-between; height: 100vh; }
             #countdown { padding-top: 10px; padding-bottom: 5px; flex-shrink: 0; height: auto; min-height: auto; }
@@ -402,7 +415,6 @@
             .bandcamp-wrapper { height: 100%; max-height: 100%; padding: 10px 15px; overflow: hidden; }
             .tab-container { height: 100%; max-height: 100%; overflow: hidden; }
             .artists-container { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-            #bouncing-logo { width: 120px; height: 120px; display: none !important; }
             .text-style { font-size: 2.2rem; }
             #countdown { font-size: 1.8rem; padding: 15px 0 5px 0; }
             .footer-text { font-size: 1.8rem; padding: 5px 0 15px 0; }
@@ -415,7 +427,6 @@
         }
         
         @media (max-width: 480px) {
-            #bouncing-logo { width: 100px; height: 100px; }
             .text-style { font-size: 1.8rem; }
             #countdown { font-size: 1.6rem; padding: 12px 0 4px 0; }
             .footer-text { font-size: 1.6rem; padding: 4px 0 12px 0; }
@@ -433,7 +444,6 @@
             .footer-text { font-size: 1.5rem; padding: 3px 0 10px 0; }
             .rolodex-nav { margin-bottom: 8px; height: 30px; }
             .artist-card { margin-bottom: 20px; padding-bottom: 15px; }
-            #bouncing-logo { width: 80px; height: 80px; }
         }
         
         @media (min-width: 769px) {
@@ -534,16 +544,15 @@ freedomtothesound.com</p>
     <div class="footer-text text-style">January 22nd</div>
 
     <script>
-        // Disable drawing on mobile
+        // Only load drawing.js on desktop (width > 768px)
         if (window.innerWidth > 768) {
-            // Only load drawing.js on desktop
             const script = document.createElement('script');
             script.src = 'drawing.js';
             document.body.appendChild(script);
         }
         
-        // Debug: Check if animation starts
-        console.log('Page loaded, desktop check:', window.innerWidth > 768);
+        // Simple console check to verify animation is starting
+        console.log('DVD Logo animation should be running on desktop');
     </script>
 </body>
 </html>
