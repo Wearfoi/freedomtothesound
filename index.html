@@ -154,6 +154,69 @@
             color: #1a1a1a;
             text-align: center;
             position: relative;
+            overflow: hidden;
+        }
+
+        /* HORIZONTAL SCROLLING TEXT BLOCKS - DESKTOP ONLY */
+        .scrolling-text-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3; /* Behind everything */
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .scrolling-text-block {
+            position: absolute;
+            width: 100%;
+            height: 25%;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            font-size: 8vw; /* Large text that scales with viewport */
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.07); /* Very subtle, behind everything */
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        /* Position each block */
+        .scrolling-text-block:nth-child(1) { top: 0; }
+        .scrolling-text-block:nth-child(2) { top: 25%; }
+        .scrolling-text-block:nth-child(3) { top: 50%; }
+        .scrolling-text-block:nth-child(4) { top: 75%; }
+        
+        /* Scrolling text content - duplicated for seamless loop */
+        .scrolling-text-content {
+            display: inline-block;
+            padding-right: 2em; /* Space between repeats */
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+        
+        /* Left scrolling animation */
+        .scroll-left {
+            animation-name: scrollLeft;
+            animation-duration: 60s;
+        }
+        
+        /* Right scrolling animation */
+        .scroll-right {
+            animation-name: scrollRight;
+            animation-duration: 60s;
+        }
+        
+        @keyframes scrollLeft {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        @keyframes scrollRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
         }
 
         #bouncing-logo {
@@ -340,8 +403,12 @@
 
         #view-radio, #view-artists { display: none; }
 
-        /* MOBILE LAYOUT FIXES */
+        /* HIDE SCROLLING TEXT ON MOBILE */
         @media (max-width: 768px) {
+            .scrolling-text-container {
+                display: none;
+            }
+            
             body {
                 height: 100vh;
                 overflow: hidden;
@@ -703,9 +770,32 @@
                 height: 60px;
             }
         }
+        
+        /* Desktop-specific scrolling text styling */
+        @media (min-width: 769px) {
+            .scrolling-text-container {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- HORIZONTAL SCROLLING TEXT BLOCKS -->
+    <div class="scrolling-text-container">
+        <div class="scrolling-text-block">
+            <div class="scrolling-text-content scroll-left">hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys </div>
+        </div>
+        <div class="scrolling-text-block">
+            <div class="scrolling-text-content scroll-right">mixtape wearfoi 20 tracks thursday january 22nd all instrumentals very awesome and life changing free download </div>
+        </div>
+        <div class="scrolling-text-block">
+            <div class="scrolling-text-content scroll-left">album will be available for free but you can pay more if you like to support me thanks guys bandcamp and such </div>
+        </div>
+        <div class="scrolling-text-block">
+            <div class="scrolling-text-content scroll-right">maaaan damn freedomtothesound.com how amazing is this man we're getting there man clothing soon after mixtape </div>
+        </div>
+    </div>
 
     <img src="logo.png" id="bouncing-logo" alt="Logo">
 
