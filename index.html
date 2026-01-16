@@ -30,133 +30,67 @@
             element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
         }
 
-        /* DVD Bounce Script with Smooth Rotation - FIXED */
-        let x = 0, y = 0, xSpeed = 2, ySpeed = 2, rotation = 0;
-        let logoWidth = 250;
-        let logoHeight = 250;
+        /* SIMPLE DVD BOUNCE WITH ROTATION - GUARANTEED TO WORK */
+        let x = 100, y = 100, xSpeed = 3, ySpeed = 3, rotation = 0;
+        let logoWidth = 250, logoHeight = 250;
         let animationId = null;
-        let lastTime = 0;
-        let rotationSpeed = 1; // Degrees per frame
         
         function initBounce() {
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
             
-            // Get dimensions
-            logoWidth = logo.offsetWidth || 250;
-            logoHeight = logo.offsetHeight || 250;
-            
-            // Random starting position
-            x = Math.random() * (window.innerWidth - logoWidth);
-            y = Math.random() * (window.innerHeight - logoHeight);
-            
-            // Random direction
-            xSpeed = (Math.random() > 0.5 ? 1 : -1) * 2;
-            ySpeed = (Math.random() > 0.5 ? 1 : -1) * 2;
-            
-            // Ensure within bounds
-            x = Math.max(0, Math.min(x, window.innerWidth - logoWidth));
-            y = Math.max(0, Math.min(y, window.innerHeight - logoHeight));
-            
-            // Start animation
-            startBounce();
-        }
-        
-        function startBounce() {
-            // Cancel any existing animation
+            // Stop any existing animation
             if (animationId) {
                 cancelAnimationFrame(animationId);
             }
             
-            lastTime = performance.now();
-            animateBounce();
+            // Get window and logo dimensions
+            logoWidth = logo.offsetWidth || 250;
+            logoHeight = logo.offsetHeight || 250;
+            
+            // Start animation
+            animateLogo();
         }
         
-        function animateBounce(currentTime) {
-            // Calculate time delta for smooth animation
-            const deltaTime = currentTime - lastTime;
-            lastTime = currentTime;
+        function animateLogo() {
+            const logo = document.getElementById('bouncing-logo');
+            if (!logo) return;
             
-            // Normalize speed for consistent animation regardless of frame rate
-            const speedFactor = Math.min(deltaTime / 16.67, 2); // Target 60fps = 16.67ms per frame
+            // Update position
+            x += xSpeed;
+            y += ySpeed;
             
-            // Update position with smooth movement
-            x += xSpeed * speedFactor;
-            y += ySpeed * speedFactor;
+            // Update rotation - ALWAYS rotating
+            rotation += 1.5;
+            if (rotation >= 360) rotation = 0;
             
-            // Update rotation - CONTINUOUSLY, independent of bounce
-            rotation += rotationSpeed * speedFactor;
-            rotation = rotation % 360; // Keep rotation within 0-360 degrees
-            
-            // Bounce off edges
+            // Bounce off walls
             const maxX = window.innerWidth - logoWidth;
             const maxY = window.innerHeight - logoHeight;
             
-            let bounced = false;
-            
-            if (x >= maxX) {
+            if (x > maxX) {
                 x = maxX;
-                xSpeed = -Math.abs(xSpeed); // Ensure negative direction
-                bounced = true;
-            } else if (x <= 0) {
+                xSpeed = -Math.abs(xSpeed);
+            } else if (x < 0) {
                 x = 0;
-                xSpeed = Math.abs(xSpeed); // Ensure positive direction
-                bounced = true;
+                xSpeed = Math.abs(xSpeed);
             }
             
-            if (y >= maxY) {
+            if (y > maxY) {
                 y = maxY;
-                ySpeed = -Math.abs(ySpeed); // Ensure negative direction
-                bounced = true;
-            } else if (y <= 0) {
+                ySpeed = -Math.abs(ySpeed);
+            } else if (y < 0) {
                 y = 0;
-                ySpeed = Math.abs(ySpeed); // Ensure positive direction
-                bounced = true;
+                ySpeed = Math.abs(ySpeed);
             }
             
-            // Apply transform with rotation - SMOOTH AND CONTINUOUS
-            const logo = document.getElementById('bouncing-logo');
-            if (logo) {
-                // Use 3D transform for hardware acceleration
-                logo.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
-                logo.style.webkitTransform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
-            }
+            // Apply movement and rotation
+            logo.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
             
             // Continue animation
-            animationId = requestAnimationFrame(animateBounce);
+            animationId = requestAnimationFrame(animateLogo);
         }
         
-        // Handle window resize
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function() {
-                const logo = document.getElementById('bouncing-logo');
-                if (logo) {
-                    logoWidth = logo.offsetWidth || 250;
-                    logoHeight = logo.offsetHeight || 250;
-                    
-                    // Keep within bounds
-                    if (x + logoWidth > window.innerWidth) {
-                        x = window.innerWidth - logoWidth;
-                        xSpeed = -Math.abs(xSpeed);
-                    }
-                    if (y + logoHeight > window.innerHeight) {
-                        y = window.innerHeight - logoHeight;
-                        ySpeed = -Math.abs(ySpeed);
-                    }
-                    if (x < 0) {
-                        x = 0;
-                        xSpeed = Math.abs(xSpeed);
-                    }
-                    if (y < 0) {
-                        y = 0;
-                        ySpeed = Math.abs(ySpeed);
-                    }
-                }
-            }, 100);
-        });
-
         /* Rolodex Switcher Logic */
         function switchView(view) {
             // Hide all views
@@ -181,13 +115,19 @@
             // Start countdown updates
             setInterval(updateCountdown, 1000);
             
-            // Initialize logo animation - with delay to ensure DOM is fully ready
-            setTimeout(function() {
-                // Only run bouncing logo on desktop (width > 768px)
-                if (window.innerWidth > 768) {
+            // Initialize logo animation on DESKTOP ONLY
+            if (window.innerWidth > 768) {
+                // Wait a moment for everything to load
+                setTimeout(initBounce, 500);
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && !animationId) {
+                    // Restart animation if it's desktop and not running
                     initBounce();
                 }
-            }, 300);
+            });
         });
     </script>
     <style>
@@ -196,6 +136,7 @@
         html, body {
             height: 100%;
             width: 100%;
+            overflow: hidden;
         }
         
         body {
@@ -207,7 +148,6 @@
             color: #1a1a1a;
             text-align: center;
             position: relative;
-            overflow: hidden;
         }
 
         /* HORIZONTAL SCROLLING TEXT BLOCKS - DESKTOP ONLY */
@@ -217,7 +157,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -3; /* Behind everything */
+            z-index: -3;
             pointer-events: none;
             overflow: hidden;
         }
@@ -229,34 +169,30 @@
             display: flex;
             align-items: center;
             white-space: nowrap;
-            font-size: 8vw; /* Large text that scales with viewport */
+            font-size: 8vw;
             font-weight: 900;
-            color: rgba(0, 0, 0, 0.07); /* Very subtle, behind everything */
+            color: rgba(0, 0, 0, 0.07);
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
         
-        /* Position each block */
         .scrolling-text-block:nth-child(1) { top: 0; }
         .scrolling-text-block:nth-child(2) { top: 25%; }
         .scrolling-text-block:nth-child(3) { top: 50%; }
         .scrolling-text-block:nth-child(4) { top: 75%; }
         
-        /* Scrolling text content - duplicated for seamless loop */
         .scrolling-text-content {
             display: inline-block;
-            padding-right: 2em; /* Space between repeats */
+            padding-right: 2em;
             animation-timing-function: linear;
             animation-iteration-count: infinite;
         }
         
-        /* Left scrolling animation */
         .scroll-left {
             animation-name: scrollLeft;
             animation-duration: 60s;
         }
         
-        /* Right scrolling animation */
         .scroll-right {
             animation-name: scrollRight;
             animation-duration: 60s;
@@ -276,14 +212,13 @@
             position: fixed;
             width: 250px;
             height: 250px;
-            z-index: -1; 
+            z-index: -1;
             pointer-events: none;
             object-fit: contain;
-            will-change: transform;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            transform-origin: center center;
-            transition: transform 0.1s linear; /* Smooth transition */
+            left: 0;
+            top: 0;
+            transform: translate(100px, 100px) rotate(0deg);
+            transition: transform 0.05s linear;
         }
         
         .text-style {
@@ -362,7 +297,6 @@
             border-bottom: 2px solid #1a1a1a; 
         }
         
-        /* TAB CONTAINERS */
         .tab-container {
             width: 100%;
             height: 100%;
@@ -373,7 +307,6 @@
             overflow: hidden;
         }
         
-        /* Music/Ralkalico Tab */
         .music-container {
             width: 100%;
             height: 100%;
@@ -392,7 +325,6 @@
             overflow: hidden;
         }
         
-        /* Radio Tab */
         .radio-container {
             width: 100%;
             height: 100%;
@@ -411,7 +343,6 @@
             overflow: hidden;
         }
         
-        /* Artists Tab */
         .artists-container {
             width: 100%;
             height: 100%;
@@ -460,7 +391,7 @@
 
         #view-radio, #view-artists { display: none; }
 
-        /* Mobile styles remain the same... */
+        /* Mobile styles */
         @media (max-width: 768px) {
             .scrolling-text-container { display: none; }
             body { height: 100vh; overflow: hidden; }
@@ -471,7 +402,7 @@
             .bandcamp-wrapper { height: 100%; max-height: 100%; padding: 10px 15px; overflow: hidden; }
             .tab-container { height: 100%; max-height: 100%; overflow: hidden; }
             .artists-container { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-            #bouncing-logo { width: 120px; height: 120px; }
+            #bouncing-logo { width: 120px; height: 120px; display: none !important; }
             .text-style { font-size: 2.2rem; }
             #countdown { font-size: 1.8rem; padding: 15px 0 5px 0; }
             .footer-text { font-size: 1.8rem; padding: 5px 0 15px 0; }
@@ -496,7 +427,6 @@
             .artist-description { font-size: 0.85rem; }
         }
         
-        /* Height-based adjustments for mobile */
         @media (max-height: 700px) and (max-width: 768px) {
             .text-style { font-size: 1.8rem; }
             #countdown { font-size: 1.5rem; padding: 10px 0 3px 0; }
@@ -612,7 +542,8 @@ freedomtothesound.com</p>
             document.body.appendChild(script);
         }
         
-        // Remove the test code that was interfering with the animation
+        // Debug: Check if animation starts
+        console.log('Page loaded, desktop check:', window.innerWidth > 768);
     </script>
 </body>
 </html>
