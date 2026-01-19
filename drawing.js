@@ -1,6 +1,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Create canvas element
     const canvas = document.createElement('canvas');
     canvas.style.position = 'fixed';
     canvas.style.top = '0';
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.style.zIndex = '9999';
     document.body.appendChild(canvas);
 
+    // Resize canvas to window size
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -18,19 +20,13 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
+    // Get drawing context
     const ctx = canvas.getContext('2d');
     const particles = [];
     const particleSize = 4;
     let isDrawing = false;
 
-    // Music unlock function
-    function startMusic() {
-        const audio = document.getElementById('bg-audio');
-        if (audio && audio.paused) {
-            audio.play().catch(err => console.log("Audio waiting for user interaction"));
-        }
-    }
-
+    // Disable text selection while drawing
     function disableSelection() {
         document.body.style.userSelect = 'none';
         document.body.style.webkitUserSelect = 'none';
@@ -45,52 +41,45 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('mousedown', (e) => {
         isDrawing = true;
         disableSelection();
-        startMusic();
         addParticles(e.clientX, e.clientY);
     });
+    
     document.addEventListener('mouseup', () => {
         isDrawing = false;
         enableSelection();
     });
+    
     document.addEventListener('mousemove', (e) => {
-        if (isDrawing) addParticles(e.clientX, e.clientY);
+        if (isDrawing) {
+            addParticles(e.clientX, e.clientY);
+        }
     });
 
-    // Touch events - Updated to allow scrolling in .scroll-view
+    // Touch events
     document.addEventListener('touchstart', (e) => {
-        // Check if the touch is inside the artist scroll area
-        const isInsideScroll = e.target.closest('.scroll-view');
-        if (isInsideScroll) {
-            isDrawing = false; // Don't draw if we are trying to scroll
-            return;
-        }
-
         isDrawing = true;
         disableSelection();
-        startMusic();
         const touch = e.touches[0];
         addParticles(touch.clientX, touch.clientY);
-    });
-
+        
+        // Prevent scrolling while drawing
+        e.preventDefault();
+    }, { passive: false });
+    
     document.addEventListener('touchend', () => {
         isDrawing = false;
         enableSelection();
     });
-
+    
     document.addEventListener('touchmove', (e) => {
         if (isDrawing) {
-            // Check if drawing was initiated inside the scroll area
-            const isInsideScroll = e.target.closest('.scroll-view');
-            if (isInsideScroll) return;
-
             const touch = e.touches[0];
             addParticles(touch.clientX, touch.clientY);
-            
-            // Only stop scroll when drawing on the main background
-            if (e.cancelable) e.preventDefault();
+            e.preventDefault(); // Prevent scrolling while drawing
         }
     }, { passive: false });
 
+    // Create particles at mouse/touch position
     function addParticles(x, y) {
         for (let i = 0; i < 5; i++) {
             particles.push({
@@ -103,24 +92,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Animation loop
     function animate() {
+        // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const now = Date.now();
 
-        particles.forEach((p, i) => {
+        // Update and draw particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
             const age = (now - p.createdAt) / 1000;
-            if (age > 5) {
+            
+            // Remove old particles
+            if (age > 2) {
                 particles.splice(i, 1);
-            } else {
-                p.alpha = 1 - (age / 4);
-                ctx.fillStyle = `rgba(0, 0, 0, ${p.alpha})`;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
+                continue;
             }
-        });
+            
+            // Fade out particles
+            p.alpha = 1 - (age / 2);
+            ctx.fillStyle = `rgba(0, 0, 0, ${p.alpha})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
         requestAnimationFrame(animate);
     }
 
+    // Start animation
     animate();
+    
+    console.log("Drawing canvas initialized successfully!");
 });

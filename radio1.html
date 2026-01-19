@@ -51,11 +51,11 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding: 5px;
+            padding: 0;
             box-sizing: border-box;
             width: 100%;
             height: 100%;
-            max-width: 450px;
+            max-width: 474px; /* Match bandcamp-wrapper max-width */
             overflow: hidden;
             position: relative;
         }
@@ -68,28 +68,25 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             overflow: hidden;
         }
         
-        /* Cover art styling - INCREASED SIZE */
-        .cover-art {
-            display: block;
-            width: 220px;
-            height: 220px;
-            margin: 0 auto 10px;
-            object-fit: cover;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: transform 0.3s;
-            flex-shrink: 0;
-        }
-        
-        .cover-art:hover {
-            transform: scale(1.05);
-        }
-        
+        /* Cover art styling - MATCH ARTIST IMAGE DIMENSIONS */
+       /* Cover art styling - MATCH ARTIST IMAGE DIMENSIONS */
+.cover-art {
+    display: block;
+    width: 100%; /* Full width like artist images */
+    aspect-ratio: 1 / 1; /* Square like artist images */
+    object-fit: cover; /* Match artist-image style */
+    margin: 0 auto 15px;
+    border-radius: 0; /* Remove border-radius to match artist images */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Match artist image shadow */
+    cursor: default; /* No pointer cursor */
+    flex-shrink: 0;
+    max-width: 100%; /* Ensure it doesn't exceed container */
+}
+
         /* Custom player styling */
         .custom-player {
             width: 100%;
@@ -358,12 +355,6 @@
         
         /* Mobile adjustments */
         @media (max-width: 480px) {
-            .cover-art {
-                width: 180px;
-                height: 180px;
-                margin-bottom: 8px;
-            }
-            
             .player-controls {
                 flex-wrap: wrap;
                 justify-content: center;
@@ -410,9 +401,7 @@
         
         @media (max-height: 700px) {
             .cover-art {
-                width: 160px;
-                height: 160px;
-                margin-bottom: 6px;
+                margin-bottom: 10px;
             }
             
             .custom-player {
@@ -450,9 +439,7 @@
         
         @media (max-height: 600px) {
             .cover-art {
-                width: 140px;
-                height: 140px;
-                margin-bottom: 4px;
+                margin-bottom: 8px;
             }
             
             .custom-player {
@@ -514,8 +501,8 @@
     <!-- Main Content -->
     <div class="main-container">
         <div class="radio-container">
-            <!-- Cover Art - INCREASED SIZE -->
-            <img id="cover-art" class="cover-art" src="https://via.placeholder.com/220" alt="Now Playing">
+            <!-- Cover Art - NOW SAME SIZE AS ARTIST IMAGES -->
+            <img id="cover-art" class="cover-art" src="https://via.placeholder.com/474" alt="Now Playing">
             
             <!-- Custom Player -->
             <div class="custom-player">
@@ -570,7 +557,6 @@
     </div>
 
     <script>
-        // [JavaScript remains exactly the same - only CSS changes were made]
         // Player elements
         const playBtn = document.getElementById('play-btn');
         const progressBar = document.getElementById('progress-bar');
@@ -1045,11 +1031,11 @@
                                 coverArt.src = song.art + '?_=' + now;
                                 coverArt.style.display = 'block';
                                 coverArt.onerror = () => { 
-                                    coverArt.src = 'https://via.placeholder.com/220?_=' + now;
+                                    coverArt.src = 'https://via.placeholder.com/474?_=' + now;
                                     coverArt.style.display = 'block';
                                 };
                             } else {
-                                coverArt.src = 'https://via.placeholder.com/220?_=' + now;
+                                coverArt.src = 'https://via.placeholder.com/474?_=' + now;
                                 coverArt.style.display = 'block';
                             }
                             
@@ -1185,7 +1171,7 @@
         init();
     </script>
 
-<script src="drawing.js"></script>
+
 
 </body>
 </html>
