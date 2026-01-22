@@ -118,12 +118,13 @@
             document.getElementById('btn-' + view).classList.add('active');
         }
 
-        // Initialize everything when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCountdown();
-            
-            // Start countdown updates
-            setInterval(updateCountdown, 1000);
+       // Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Countdown removed - header now displays "RalKalico"
+    // updateCountdown();
+    
+    // Countdown updates removed
+    // setInterval(updateCountdown, 1000);
             
             // Initialize logo animation - DESKTOP ONLY
             if (window.innerWidth > 768) {
@@ -245,7 +246,7 @@
             z-index: 1;
         }
 
-        #countdown { 
+        #countdown, #header { 
             padding-top: 15px;
             width: 100%;
         }
@@ -465,22 +466,22 @@
     <!-- HORIZONTAL SCROLLING TEXT BLOCKS -->
     <div class="scrolling-text-container">
         <div class="scrolling-text-block">
-            <div class="scrolling-text-content scroll-left">hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys hey guys </div>
+            <div class="scrolling-text-content scroll-left">ralkalico out now for free download it please through the website which is also through bandcamp thanks guys  </div>
         </div>
         <div class="scrolling-text-block">
-            <div class="scrolling-text-content scroll-right">mixtape wearfoi 20 tracks thursday january 22nd all instrumentals very awesome and life changing free download </div>
+            <div class="scrolling-text-content scroll-right">mixtape wearfoi 20 tracks out now for free mixtape all instrumentals very awesome and life changing free download </div>
         </div>
         <div class="scrolling-text-block">
-            <div class="scrolling-text-content scroll-left">album will be available for free but you can pay more if you like to support me thanks guys bandcamp and such </div>
+            <div class="scrolling-text-content scroll-left">mixtape is free for download but you can pay more if you like to support me thanks guys bandcamp and such download </div>
         </div>
         <div class="scrolling-text-block">
-            <div class="scrolling-text-content scroll-right">maaaan damn freedomtothesound.com how amazing is this man we're getting there man clothing soon after mixtape </div>
+            <div class="scrolling-text-content scroll-right">maaaan damn freedomtothesound.com how amazing is this man we're getting there man clothing soon lets do it  </div>
         </div>
     </div>
 
     <img src="logo.png" id="bouncing-logo" alt="Logo">
 
-    <div id="countdown" class="text-style">Calculating...</div>
+    <div id="header" class="text-style">RalKalico</div>
 
     <div class="container">
         <div class="bandcamp-wrapper">
@@ -550,7 +551,7 @@ freedomtothesound.com</p>
         </div>
     </div>
 
-    <div class="footer-text text-style">January 22nd</div>
+    <div class="footer-text text-style">Out Now</div>
 
 
    
