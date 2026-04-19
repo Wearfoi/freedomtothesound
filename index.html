@@ -13,51 +13,28 @@
             window.history.replaceState(null, '', newPath + window.location.search);
         }
 
-        /* Countdown Script */
-        function updateCountdown() {
-            const targetDate = new Date("2026-01-22T00:00:00-05:00").getTime();
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-            const element = document.getElementById("countdown");
-            if (distance < 0) {
-                element.innerHTML = "00:00:00:00";
-                return;
-            }
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            element.innerHTML = String(days).padStart(2, '0') + ":" + String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
-        }
-
         /* DVD Screensaver with EASY SPEED CONTROL */
         let logoX = 100, logoY = 100, logoVX = 2, logoVY = 2;
         let rotation = 0;
         let logoWidth = 250, logoHeight = 250;
         let animationFrameId = null;
         
-        // ========== ADJUST THESE VALUES TO CHANGE SPEED ==========
-        const MOVE_SPEED = 0.7;    // Lower = slower movement (was 2)
-        const ROTATE_SPEED = 0.5;  // Lower = slower rotation (was 0.8)
-        // ========================================================
+        const MOVE_SPEED = 0.7;
+        const ROTATE_SPEED = 0.5;
         
         function initDVDLogo() {
             const logo = document.getElementById('bouncing-logo');
             if (!logo || window.innerWidth <= 768) return;
             
-            // Get actual logo dimensions
             logoWidth = logo.offsetWidth;
             logoHeight = logo.offsetHeight;
             
-            // Random starting position
             logoX = Math.random() * (window.innerWidth - logoWidth);
             logoY = Math.random() * (window.innerHeight - logoHeight);
             
-            // Random direction using the adjustable speed
             logoVX = (Math.random() > 0.5 ? 1 : -1) * MOVE_SPEED;
             logoVY = (Math.random() > 0.5 ? 1 : -1) * MOVE_SPEED;
             
-            // Start animation
             animateDVDLogo();
         }
         
@@ -65,81 +42,48 @@
             const logo = document.getElementById('bouncing-logo');
             if (!logo) return;
             
-            // Update position
             logoX += logoVX;
             logoY += logoVY;
             
-            // Update rotation using adjustable rotation speed
             rotation += ROTATE_SPEED;
             if (rotation >= 360) rotation = 0;
             
-            // Calculate boundaries
             const maxX = window.innerWidth - logoWidth;
             const maxY = window.innerHeight - logoHeight;
             
-            // Bounce off edges
-            if (logoX >= maxX) {
-                logoX = maxX;
-                logoVX = -logoVX;
-            } else if (logoX <= 0) {
-                logoX = 0;
-                logoVX = -logoVX;
-            }
+            if (logoX >= maxX) { logoX = maxX; logoVX = -logoVX; }
+            else if (logoX <= 0) { logoX = 0; logoVX = -logoVX; }
             
-            if (logoY >= maxY) {
-                logoY = maxY;
-                logoVY = -logoVY;
-            } else if (logoY <= 0) {
-                logoY = 0;
-                logoVY = -logoVY;
-            }
+            if (logoY >= maxY) { logoY = maxY; logoVY = -logoVY; }
+            else if (logoY <= 0) { logoY = 0; logoVY = -logoVY; }
             
-            // Apply transformation
             logo.style.transform = `translate(${logoX}px, ${logoY}px) rotate(${rotation}deg)`;
             
-            // Continue animation
             animationFrameId = requestAnimationFrame(animateDVDLogo);
         }
         
-        /* Rolodex Switcher Logic */
+        /* Rolodex Switcher Logic (only music and artists now) */
         function switchView(view) {
-            // Hide all views
             document.getElementById('view-music').style.display = 'none';
-            document.getElementById('view-radio').style.display = 'none';
             document.getElementById('view-artists').style.display = 'none';
             
-            // Remove active class from all buttons
             document.getElementById('btn-music').classList.remove('active');
-            document.getElementById('btn-radio').classList.remove('active');
             document.getElementById('btn-artists').classList.remove('active');
             
-            // Show selected view and activate button
             document.getElementById('view-' + view).style.display = 'flex';
             document.getElementById('btn-' + view).classList.add('active');
         }
 
-       // Initialize everything when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Countdown removed - header now displays "RalKalico"
-    // updateCountdown();
-    
-    // Countdown updates removed
-    // setInterval(updateCountdown, 1000);
-            
-            // Initialize logo animation - DESKTOP ONLY
+        document.addEventListener('DOMContentLoaded', function() {
             if (window.innerWidth > 768) {
-                // Small delay to ensure everything is loaded
                 setTimeout(initDVDLogo, 300);
             }
             
-            // Handle window resize
             window.addEventListener('resize', function() {
                 if (animationFrameId) {
                     cancelAnimationFrame(animationFrameId);
                     animationFrameId = null;
                 }
-                
-                // Restart on desktop
                 if (window.innerWidth > 768) {
                     initDVDLogo();
                 }
@@ -166,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
             overflow: hidden;
         }
 
-        /* HORIZONTAL SCROLLING TEXT BLOCKS - DESKTOP ONLY */
         .scrolling-text-container {
             position: fixed;
             top: 0;
@@ -224,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
             100% { transform: translateX(0%); }
         }
 
-        /* DVD LOGO */
         #bouncing-logo {
             position: fixed;
             width: 250px;
@@ -246,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
             z-index: 1;
         }
 
-        #countdown, #header { 
+        #header { 
             padding-top: 15px;
             width: 100%;
         }
@@ -281,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         .rolodex-nav {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;  /* Changed from space-between for two items */
             align-items: center;
             margin-bottom: 15px;
             width: 100%;
@@ -300,9 +242,9 @@ document.addEventListener('DOMContentLoaded', function() {
             cursor: pointer;
             opacity: 0.3; 
             transition: opacity 0.3s;
-            flex: 1;
+            flex: 0 1 auto;  /* Don't stretch */
             text-align: center;
-            padding: 5px 0;
+            padding: 5px 10px;
             color: #1a1a1a !important;
             -webkit-tap-highlight-color: transparent;
             -webkit-appearance: none;
@@ -342,28 +284,6 @@ document.addEventListener('DOMContentLoaded', function() {
             border: none;
             overflow: hidden;
         }
-        
-       
-    .radio-container {
-    width: 100%;
-    height: 100%;
-    border: 0;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    border-radius: 1px;
-    overflow: hidden;
-    flex: 1;
-    display: flex; /* Add this */
-    flex-direction: column; /* Add this */
-    }
-
-    .radio-embed {
-    width: 100%;
-    height: 100%;
-    border: none;
-    overflow: hidden;
-    flex: 1; 
-    }
         
         .artists-container {
             width: 100%;
@@ -411,37 +331,35 @@ document.addEventListener('DOMContentLoaded', function() {
             color: #444;
         }
 
-        #view-radio, #view-artists { display: none; }
+        #view-artists { display: none; }
 
-        /* Mobile styles - HIDE THE BOUNCING LOGO ON MOBILE */
+        /* Mobile styles */
         @media (max-width: 768px) {
             .scrolling-text-container { display: none; }
             #bouncing-logo { display: none !important; }
             body { height: 100vh; overflow: hidden; }
             body { display: flex; flex-direction: column; justify-content: space-between; height: 100vh; }
-            #countdown { padding-top: 10px; padding-bottom: 5px; flex-shrink: 0; height: auto; min-height: auto; }
-            .footer-text { padding-top: 5px; padding-bottom: 10px; flex-shrink: 0; height: auto; min-height: auto; }
+            #header { padding-top: 10px; padding-bottom: 5px; flex-shrink: 0; }
+            .footer-text { padding-top: 5px; padding-bottom: 10px; flex-shrink: 0; }
             .container { flex: 1; min-height: 0; overflow: hidden; padding: 0; }
             .bandcamp-wrapper { height: 100%; max-height: 100%; padding: 10px 15px; overflow: hidden; }
             .tab-container { height: 100%; max-height: 100%; overflow: hidden; }
             .artists-container { overflow-y: auto; -webkit-overflow-scrolling: touch; }
             .text-style { font-size: 2.2rem; }
-            #countdown { font-size: 1.8rem; padding: 15px 0 5px 0; }
             .footer-text { font-size: 1.8rem; padding: 5px 0 15px 0; }
-            .rolodex-nav { margin-bottom: 10px; gap: 10px; }
-            .rolodex-btn { font-size: 0.8rem; }
+            .rolodex-nav { margin-bottom: 10px; gap: 30px; }
+            .rolodex-btn { font-size: 0.9rem; }
             .artist-name { font-size: 1.3rem; }
             .artist-description { font-size: 0.9rem; }
-            .music-container, .radio-container { max-height: 100%; overflow: hidden; }
-            .bandcamp-embed, .radio-embed { max-height: 100%; }
+            .music-container { max-height: 100%; overflow: hidden; }
+            .bandcamp-embed { max-height: 100%; }
         }
         
         @media (max-width: 480px) {
             .text-style { font-size: 1.8rem; }
-            #countdown { font-size: 1.6rem; padding: 12px 0 4px 0; }
             .footer-text { font-size: 1.6rem; padding: 4px 0 12px 0; }
-            .rolodex-nav { margin-bottom: 8px; gap: 8px; height: 35px; }
-            .rolodex-btn { font-size: 0.75rem; }
+            .rolodex-nav { margin-bottom: 8px; gap: 20px; height: 35px; }
+            .rolodex-btn { font-size: 0.8rem; }
             .bandcamp-wrapper { padding: 8px 10px; }
             .artist-info { padding: 0 15px; }
             .artist-name { font-size: 1.2rem; }
@@ -450,7 +368,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         @media (max-height: 700px) and (max-width: 768px) {
             .text-style { font-size: 1.8rem; }
-            #countdown { font-size: 1.5rem; padding: 10px 0 3px 0; }
             .footer-text { font-size: 1.5rem; padding: 3px 0 10px 0; }
             .rolodex-nav { margin-bottom: 8px; height: 30px; }
             .artist-card { margin-bottom: 20px; padding-bottom: 15px; }
@@ -488,19 +405,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <div class="rolodex-nav">
                 <button id="btn-music" class="rolodex-btn active" onclick="switchView('music')">RALKALICO</button>
-                <button id="btn-radio" class="rolodex-btn" onclick="switchView('radio')">Radio</button>
                 <button id="btn-artists" class="rolodex-btn" onclick="switchView('artists')">Artists</button>
             </div>
 
             <div id="view-music" class="tab-container">
                 <div class="music-container">
-    <iframe class="bandcamp-embed" src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=7137dc/transparent=true/" seamless><a href="https://wearfoi.bandcamp.com/album/ralkalico">RalKalico by Wearfoi</a></iframe>
-</div>
-            </div>
-
-            <div id="view-radio" class="tab-container" style="display: none;">
-                <div class="radio-container">
-                    <iframe src="radio1.html" class="radio-embed" title="Radio Player"></iframe>
+                    <iframe class="bandcamp-embed" src="https://bandcamp.com/EmbeddedPlayer/album=2103124777/size=large/bgcol=ffffff/linkcol=7137dc/transparent=true/" seamless><a href="https://wearfoi.bandcamp.com/album/ralkalico">RalKalico by Wearfoi</a></iframe>
                 </div>
             </div>
 
@@ -531,20 +441,20 @@ freedomtothesound.com</p>
                     </div>
 
                     <div class="artist-card">
-    <img src="fdslogo.png" class="artist-image">
-    <div class="artist-info">
-        <h2 class="artist-name">FreakyDeerSeal</h2>
-        <p class="artist-description"></p>
-    </div>
-</div>
+                        <img src="fdslogo.png" class="artist-image">
+                        <div class="artist-info">
+                            <h2 class="artist-name">FreakyDeerSeal</h2>
+                            <p class="artist-description"></p>
+                        </div>
+                    </div>
 
-              <div class="artist-card">
-    <img src="aclogo.png" class="artist-image">
-    <div class="artist-info">
-        <h2 class="artist-name">aconvict</h2>
-        <p class="artist-description">Something in your area, sum' like illegal, who are you fucking on! Aconvict is a artist who has been doing her thing since 2019, picking up music as something more than a hobby in 2023. Aconvict has been just doing her thing fr fr. FKA: allmylife, truedivinityazazel, garden of eden. Fuck con! #FTTS #ILLEGALPERSON469 #ACONVICT469 #FREEDOMTOTHESOUND</p>
-    </div>
-</div>
+                    <div class="artist-card">
+                        <img src="aclogo.png" class="artist-image">
+                        <div class="artist-info">
+                            <h2 class="artist-name">aconvict</h2>
+                            <p class="artist-description">Something in your area, sum' like illegal, who are you fucking on! Aconvict is a artist who has been doing her thing since 2019, picking up music as something more than a hobby in 2023. Aconvict has been just doing her thing fr fr. FKA: allmylife, truedivinityazazel, garden of eden. Fuck con! #FTTS #ILLEGALPERSON469 #ACONVICT469 #FREEDOMTOTHESOUND</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -552,9 +462,6 @@ freedomtothesound.com</p>
     </div>
 
     <div class="footer-text text-style">Out Now</div>
-
-
-   
 
 </body>
 </html>

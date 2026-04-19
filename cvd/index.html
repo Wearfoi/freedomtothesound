@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Credo Verso Demos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: radial-gradient(circle at 30% 30%, #ff8c00, #4a0e4e, #000000);
+            background-size: 200% 200%;
+            animation: gradientShift 12s ease-in-out infinite alternate;
+            color: #bf5fff;
+            font-family: "Trebuchet MS", Trebuchet, sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        .download-btn {
+            position: fixed;
+            top: clamp(10px, 2vw, 20px);
+            left: clamp(10px, 2vw, 20px);
+            background: transparent;
+            border: 2px solid #18ff00;
+            border-radius: 50%;
+            width: clamp(40px, 8vw, 48px);
+            height: clamp(40px, 8vw, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #18ff00;
+            transition: all 0.2s;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+        }
+        .download-btn:hover {
+            transform: scale(1.1);
+            background: #18ff00;
+            color: #000;
+        }
+        .download-btn svg {
+            width: 60%;
+            height: 60%;
+            fill: currentColor;
+        }
+
+        /* Panels */
+        .player-panel {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: clamp(10px, 2vw, 20px) clamp(10px, 2vw, 20px) 0;
+            height: 100vh;
+            min-width: 280px;
+            overflow-y: auto;
+        }
+        .playlist-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(10px, 2vw, 20px);
+            overflow: hidden;
+            height: 100vh;
+            min-width: 200px;
+        }
+
+        /* Vertical resize handle (desktop) */
+        .resize-handle-vertical {
+            width: 8px;
+            background: #bf5fff;
+            cursor: col-resize;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .resize-handle-vertical:hover {
+            background: #ff8c00;
+        }
+
+        /* Horizontal resize handle (mobile) – hidden by default */
+        .resize-handle-horizontal {
+            display: none;
+            height: 8px;
+            background: #bf5fff;
+            cursor: row-resize;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .resize-handle-horizontal:hover {
+            background: #ff8c00;
+        }
+
+        /* Player elements */
+        .cover-art {
+            width: 100%;
+            max-width: min(400px, 70vw);
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(191, 95, 255, 0.3);
+            margin-bottom: clamp(10px, 2vh, 20px);
+            border: none;
+            border-radius: 0;
+            flex-shrink: 0;
+        }
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: clamp(5px, 1.5vh, 15px);
+            flex-shrink: 0;
+        }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #ff8c00;
+            cursor: pointer;
+            width: clamp(48px, 10vw, 64px);
+            height: clamp(48px, 10vw, 64px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+        .nav-btn svg {
+            width: 60%;
+            height: 60%;
+        }
+        .nav-btn:hover {
+            transform: scale(1.2);
+            color: #ffa64d;
+        }
+        .song-title {
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 900;
+            text-align: center;
+            padding: 0 5px;
+            word-break: break-word;
+            flex: 1;
+            color: #bf5fff;
+        }
+        .song-title .slash {
+            color: #ff8c00;
+        }
+        .bio-log {
+            width: 100%;
+            flex: 1;
+            overflow-y: auto;
+            padding: clamp(10px, 2vw, 20px);
+            margin-top: 5px;
+            color: #bf5fff;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .bio-log::-webkit-scrollbar {
+            width: 6px;
+        }
+        .bio-log::-webkit-scrollbar-thumb {
+            background: #bf5fff;
+            border-radius: 10px;
+        }
+        .playlist-container {
+            width: 100%;
+            flex: 1;
+            overflow-y: auto;
+            background-color: rgba(191,95,255,0.05);
+            background-image: 
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px,
+                transparent 2px, transparent 8px);
+            background-blend-mode: overlay;
+            border-radius: 12px;
+            padding: clamp(10px, 2vw, 20px);
+            border: 1px solid #bf5fff;
+            margin-bottom: 15px;
+        }
+        .playlist-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .playlist-item {
+            padding: clamp(8px, 1.5vh, 14px) clamp(12px, 2vw, 18px);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            color: #bf5fff;
+            transition: background 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+            font-weight: bold;
+        }
+        .playlist-item:hover {
+            background: rgba(191,95,255,0.2);
+        }
+        .playlist-item.active {
+            background: #bf5fff;
+            color: #ff8c00;
+            font-weight: bold;
+        }
+        .right-controls {
+            flex-shrink: 0;
+            padding: 0 5px;
+        }
+        .progress-container {
+            width: 100%;
+            height: clamp(4px, 1vh, 6px);
+            background: rgba(191,95,255,0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #bf5fff;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.05s linear;
+        }
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .control-left, .control-right {
+            width: clamp(40px, 8vw, 48px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .play-btn {
+            background: transparent;
+            border: 2px solid #ff8c00;
+            border-radius: 50%;
+            width: clamp(40px, 8vw, 48px);
+            height: clamp(40px, 8vw, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ff8c00;
+            transition: all 0.2s;
+        }
+        .play-btn svg {
+            width: 60%;
+            height: 60%;
+        }
+        .play-btn:hover {
+            background: #ff8c00;
+            color: #000;
+        }
+        .volume-control {
+            position: relative;
+        }
+        .volume-btn {
+            background: transparent;
+            border: none;
+            color: #ff8c00;
+            cursor: pointer;
+            width: clamp(40px, 8vw, 48px);
+            height: clamp(40px, 8vw, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .volume-btn svg {
+            width: 60%;
+            height: 60%;
+        }
+        .volume-btn:hover {
+            transform: scale(1.1);
+        }
+        .volume-slider-container {
+            position: absolute;
+            right: 0;
+            bottom: 60px;
+            width: 40px;
+            height: 120px;
+            background: rgba(30,30,30,0.95);
+            border-radius: 10px;
+            padding: 15px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #bf5fff;
+        }
+        .volume-control:hover .volume-slider-container,
+        .volume-slider-container.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .volume-slider {
+            -webkit-appearance: slider-vertical;
+            width: 100px;
+            height: 100%;
+            min-height: 100px;
+            margin: 0;
+            padding: 0;
+            writing-mode: bt-lr;
+            background: transparent;
+            accent-color: #bf5fff;
+        }
+        .time-display {
+            text-align: center;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            font-weight: bold;
+            color: #bf5fff;
+            flex: 1;
+        }
+        .playlist-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .playlist-container::-webkit-scrollbar-thumb {
+            background: #ff8c00;
+            border-radius: 10px;
+        }
+
+        /* Responsive: mobile stacking */
+        @media (max-width: 700px) {
+            body {
+                flex-direction: column;
+            }
+            .resize-handle-vertical {
+                display: none;
+            }
+            .resize-handle-horizontal {
+                display: block;   /* visible only on mobile */
+            }
+            .player-panel, .playlist-panel {
+                height: 50vh;
+                width: 100%;
+                min-width: auto;
+                overflow-y: auto;
+            }
+            .player-panel {
+                padding-bottom: 0;
+            }
+            .playlist-panel {
+                padding-top: 5px;
+            }
+            .download-btn {
+                top: 10px;
+                left: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .player-panel {
+                padding: 10px 10px 0;
+            }
+            .playlist-panel {
+                padding: 10px;
+            }
+            .playlist-item {
+                padding: 8px 10px;
+            }
+            .time-display {
+                font-size: 0.9rem;
+            }
+            .volume-slider-container {
+                bottom: 50px;
+                height: 100px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .cover-art {
+                max-width: 500px;
+            }
+            .song-title {
+                font-size: 3rem;
+            }
+            .playlist-item {
+                font-size: 2rem;
+            }
+        }
+
+        .nav-btn svg, .play-btn svg, .volume-btn svg, .download-btn svg {
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <button class="download-btn" id="downloadCurrentBtn" title="Download current song">
+        <svg viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+    </button>
+
+    <div class="player-panel" id="playerPanel">
+        <img id="cover-art" class="cover-art" src="cover.jpg" alt="Cover" onerror="this.src='https://via.placeholder.com/400/bf5fff/000000?text=49'">
+
+        <div class="title-row">
+            <button id="prev-btn" class="nav-btn" title="Previous (←)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                </svg>
+            </button>
+            <div id="song-title" class="song-title">1<span class="slash">/</span>49</div>
+            <button id="next-btn" class="nav-btn" title="Next (→)">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="bio-log" id="bio-log">
+            Select a song to see its bio.
+        </div>
+    </div>
+
+    <!-- Vertical handle (desktop) -->
+    <div class="resize-handle-vertical" id="resizeHandleVertical"></div>
+    <!-- Horizontal handle (mobile) -->
+    <div class="resize-handle-horizontal" id="resizeHandleHorizontal"></div>
+
+    <div class="playlist-panel" id="playlistPanel">
+        <div class="playlist-container">
+            <div class="playlist-list" id="playlist-list">
+                <div class="playlist-item">Loading...</div>
+            </div>
+        </div>
+
+        <div class="right-controls">
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="control-row">
+                <div class="control-left">
+                    <button id="play-btn" class="play-btn" title="Play/Pause">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="time-display" id="time-display">0:00 / 0:00</div>
+                <div class="control-right">
+                    <div class="volume-control">
+                        <button id="volume-btn" class="volume-btn" title="Volume">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3 15V9H7L12 4V20L7 15H3Z"/>
+                                <path d="M16.5 12C16.5 10.23 15.48 8.71 14 7.97V16.02C15.48 15.29 16.5 13.77 16.5 12Z"/>
+                                <path d="M14 3.23V5.29C16.89 6.15 19 8.83 19 12C19 15.17 16.89 17.85 14 18.71V20.77C18.01 19.86 21 16.28 21 12C21 7.72 18.01 4.14 14 3.23Z"/>
+                            </svg>
+                        </button>
+                        <div class="volume-slider-container" id="volume-slider-container">
+                            <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.01" value="0.8" orient="vertical">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drawing.js – only enabled on non‑touch devices -->
+    <script>
+        (function() {
+            // Only enable drawing on devices without touch support (desktops)
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                return; // Disable on mobile/tablet
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '9999';
+            document.body.appendChild(canvas);
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const ctx = canvas.getContext('2d');
+            const particles = [];
+            const particleSize = 4;
+            let isDrawing = false;
+
+            function disableSelection() {
+                document.body.style.userSelect = 'none';
+                document.body.style.webkitUserSelect = 'none';
+            }
+            function enableSelection() {
+                document.body.style.userSelect = 'auto';
+                document.body.style.webkitUserSelect = 'auto';
+            }
+
+            document.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                disableSelection();
+                addParticles(e.clientX, e.clientY);
+            });
+            document.addEventListener('mouseup', () => {
+                isDrawing = false;
+                enableSelection();
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (isDrawing) addParticles(e.clientX, e.clientY);
+            });
+
+            function addParticles(x, y) {
+                for (let i = 0; i < 5; i++) {
+                    particles.push({
+                        x: x + (Math.random() - 0.5) * 10,
+                        y: y + (Math.random() - 0.5) * 10,
+                        size: particleSize + Math.random() * 2,
+                        alpha: 1,
+                        createdAt: Date.now()
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const now = Date.now();
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    const age = (now - p.createdAt) / 1000;
+                    if (age > 2) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
+                    p.alpha = 1 - (age / 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+    </script>
+
+    <script>
+        (function() {
+            const SONG_FILES = Array.from({ length: 49 }, (_, i) => `${i + 1}.mp3`);
+
+            const SONG_BIOS = {
+                "1": "forgot to start on the first day man my goodness",
+                "2": "i can tell i was trying not to do something ambient. its how i natrually operate",
+                "3": "something is happening for sure. what is happening. im not so sure",
+                "4": "and here we go im getting ambient with it. i cant help it",
+                "5": "huge discovery initially but then woah this is not so good actually",
+                "6": "soldiers of the freedom militia saying their goodbyes",
+                "7": "the freedom militia return home",
+                "8": "a new task at hand. seems so very difficult but youre doing it now",
+                "9": "i love this one. it randomly gets stuck in my head especially when im commuting",
+                "10": "cheery la la la and then wait lets get a little more serious but lets keep it playful at the same time sorta",
+                "11": "i think i heard this one vaguely in a dream. this happens a bunch. melodies come to me in my dreams. if i remember them then when i wake up theyre deemed worthy of being 'real'",
+                "12": "a view you remember",
+                "13": "this one is awesome. sneaky pete",
+                "14": "this one i call easy town. bon foolios birth place in the glorious country of ralkalico",
+                "15": "mission is done now. what is this mission",
+                "16": "squeezed out green grape valley",
+                "17": "ridiculous lovely nonsense this one. like i get it but. but nothing. i get it",
+                "18": "missed!",
+                "19": "this one i call will",
+                "20": "my hard driver died this day and i couldnt make anything (i thought)",
+                "21": "i made something",
+                "22": "then i was like ok this sucks and i want my hard drive back",
+                "23": "great idea by me to pick the electric guitar back up. i know basically nothing i just play and its fun",
+                "24": "introduction: Bon Foolio",
+                "25": "a bunch of this guitar stuff is like kinda out of tune",
+                "26": "emerson sampled this one and its awesome. i love this one",
+                "27": "missed!",
+                "28": "someones complaining and the other is listening. a conversation of some sort",
+                "29": "introduction: Roq Landsman",
+                "30": "wedding day",
+                "31": "i dont like this one very much. awesome idea but what am i really doing",
+                "32": "first speech",
+                "33": "introduction: lazy bum",
+                "34": "fortune teller theme",
+                "35": "call and response. a kitchen maybe",
+                "36": "i remember this taking me longer than usual to make. i was trying my best not to make it ambient but i gave in",
+                "37": "something final",
+                "38": "this one is great. a big showcase of the finest and best ants",
+                "39": "i like to play games and have fun",
+                "40": "introduction: William Fran Beast",
+                "41": "charlie brown",
+                "42": "missed...",
+                "43": "not much time left but the ones around make it last longer",
+                "44": "special one",
+                "45": "troops retreat. WFB commanding force inbound",
+                "46": "missed!!!",
+                "47": "47",
+                "48": "crossed over but to where i have no idea. you have no idea either. theres nothing to see but much to hear",
+                "49": "one thing about me that ill always respect is i know how to make an outro"
+            };
+
+            const playBtn = document.getElementById('play-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const timeDisplay = document.getElementById('time-display');
+            const songTitleEl = document.getElementById('song-title');
+            const volumeBtn = document.getElementById('volume-btn');
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumeSliderContainer = document.getElementById('volume-slider-container');
+            const playlistList = document.getElementById('playlist-list');
+            const progressContainer = document.getElementById('progress-container');
+            const bioLog = document.getElementById('bio-log');
+
+            const resizeHandleVertical = document.getElementById('resizeHandleVertical');
+            const resizeHandleHorizontal = document.getElementById('resizeHandleHorizontal');
+            const playerPanel = document.getElementById('playerPanel');
+            const playlistPanel = document.getElementById('playlistPanel');
+
+            const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
+
+            let audio = new Audio();
+            let currentIndex = 0;
+            let isPlaying = false;
+            let isDraggingProgress = false;
+            let previousVolume = 0.8;
+            let isMuted = false;
+            let volumeHideTimeout;
+
+            // --- Vertical Resize (Desktop) ---
+            let isResizingVertical = false;
+            resizeHandleVertical.addEventListener('mousedown', (e) => {
+                isResizingVertical = true;
+                document.body.style.cursor = 'col-resize';
+                e.preventDefault();
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isResizingVertical) return;
+                const containerWidth = window.innerWidth;
+                const mouseX = e.clientX;
+                const leftWidth = mouseX - resizeHandleVertical.offsetWidth / 2;
+                const rightWidth = containerWidth - mouseX - resizeHandleVertical.offsetWidth / 2;
+                if (leftWidth > 200 && rightWidth > 150) {
+                    playerPanel.style.flex = 'none';
+                    playerPanel.style.width = leftWidth + 'px';
+                    playlistPanel.style.flex = 'none';
+                    playlistPanel.style.width = rightWidth + 'px';
+                }
+            });
+
+            // --- Horizontal Resize (Mobile) ---
+            let isResizingHorizontal = false;
+            resizeHandleHorizontal.addEventListener('mousedown', (e) => {
+                isResizingHorizontal = true;
+                document.body.style.cursor = 'row-resize';
+                e.preventDefault();
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isResizingHorizontal) return;
+                const containerHeight = window.innerHeight;
+                const mouseY = e.clientY;
+                const topHeight = mouseY - resizeHandleHorizontal.offsetHeight / 2;
+                const bottomHeight = containerHeight - mouseY - resizeHandleHorizontal.offsetHeight / 2;
+                if (topHeight > 150 && bottomHeight > 150) {
+                    playerPanel.style.height = topHeight + 'px';
+                    playerPanel.style.flex = 'none';
+                    playlistPanel.style.height = bottomHeight + 'px';
+                    playlistPanel.style.flex = 'none';
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isResizingVertical) {
+                    isResizingVertical = false;
+                    document.body.style.cursor = 'default';
+                }
+                if (isResizingHorizontal) {
+                    isResizingHorizontal = false;
+                    document.body.style.cursor = 'default';
+                }
+            });
+
+            // Touch support for horizontal handle
+            resizeHandleHorizontal.addEventListener('touchstart', (e) => {
+                isResizingHorizontal = true;
+                e.preventDefault();
+            });
+            window.addEventListener('touchmove', (e) => {
+                if (!isResizingHorizontal) return;
+                const touch = e.touches[0];
+                const containerHeight = window.innerHeight;
+                const mouseY = touch.clientY;
+                const topHeight = mouseY - resizeHandleHorizontal.offsetHeight / 2;
+                const bottomHeight = containerHeight - mouseY - resizeHandleHorizontal.offsetHeight / 2;
+                if (topHeight > 150 && bottomHeight > 150) {
+                    playerPanel.style.height = topHeight + 'px';
+                    playerPanel.style.flex = 'none';
+                    playlistPanel.style.height = bottomHeight + 'px';
+                    playlistPanel.style.flex = 'none';
+                }
+                e.preventDefault();
+            }, { passive: false });
+            window.addEventListener('touchend', () => {
+                isResizingHorizontal = false;
+            });
+
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return "0:00";
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+
+            function buildPlaylistUI() {
+                playlistList.innerHTML = '';
+                SONG_FILES.forEach((filename, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'playlist-item';
+                    const displayName = filename.replace(/\.mp3$/i, '');
+                    item.textContent = displayName;
+                    item.dataset.index = idx;
+                    item.addEventListener('click', () => {
+                        loadSong(idx);
+                        if (!isPlaying) togglePlay();
+                    });
+                    playlistList.appendChild(item);
+                });
+            }
+
+            function highlightCurrent() {
+                document.querySelectorAll('.playlist-item').forEach((el, i) => {
+                    if (i === currentIndex) el.classList.add('active');
+                    else el.classList.remove('active');
+                });
+            }
+
+            function updateBio(index) {
+                const filename = SONG_FILES[index];
+                const key = filename.replace(/\.mp3$/i, '');
+                const bio = SONG_BIOS[key] || "No bio available for this song.";
+                bioLog.textContent = bio;
+            }
+
+            function loadSong(index) {
+                if (index < 0 || index >= SONG_FILES.length) return;
+                currentIndex = index;
+                audio.src = SONG_FILES[currentIndex];
+                songTitleEl.innerHTML = `${currentIndex + 1}<span class="slash">/</span>49`;
+                document.title = `${currentIndex + 1} | 49`;
+                highlightCurrent();
+                updateBio(currentIndex);
+                if (isPlaying) {
+                    audio.play().catch(e => console.log('Playback error:', e));
+                }
+            }
+
+            function togglePlay() {
+                if (isPlaying) {
+                    audio.pause();
+                } else {
+                    audio.play().catch(e => console.log('Autoplay prevented:', e));
+                }
+            }
+
+            function updateProgress() {
+                if (!isDraggingProgress) {
+                    const current = audio.currentTime;
+                    const duration = audio.duration;
+                    if (!isNaN(duration)) {
+                        const percent = (current / duration) * 100;
+                        progressBar.style.width = percent + '%';
+                        timeDisplay.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
+                    }
+                }
+                if (isPlaying) requestAnimationFrame(updateProgress);
+            }
+
+            function updateVolumeUI() {
+                if (!isMuted) {
+                    audio.volume = volumeSlider.value;
+                    previousVolume = audio.volume;
+                }
+            }
+
+            function downloadCurrent() {
+                const filename = SONG_FILES[currentIndex];
+                const link = document.createElement('a');
+                link.href = filename;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            downloadCurrentBtn.addEventListener('click', downloadCurrent);
+
+            audio.addEventListener('loadedmetadata', () => {
+                timeDisplay.textContent = `0:00 / ${formatTime(audio.duration)}`;
+            });
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('ended', () => {
+                if (currentIndex < SONG_FILES.length - 1) loadSong(currentIndex + 1);
+                else loadSong(0);
+                if (!isPlaying) togglePlay();
+            });
+            audio.addEventListener('play', () => {
+                isPlaying = true;
+                playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+                requestAnimationFrame(updateProgress);
+            });
+            audio.addEventListener('pause', () => {
+                isPlaying = false;
+                playBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            });
+            audio.addEventListener('error', (e) => {
+                console.warn('Audio error:', e);
+                setTimeout(() => {
+                    if (currentIndex < SONG_FILES.length - 1) loadSong(currentIndex + 1);
+                    else loadSong(0);
+                    if (!isPlaying) togglePlay();
+                }, 500);
+            });
+
+            progressContainer.addEventListener('mousedown', (e) => {
+                isDraggingProgress = true;
+                const rect = progressContainer.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audio.currentTime = percent * audio.duration;
+                progressBar.style.width = (percent * 100) + '%';
+                timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (isDraggingProgress) {
+                    const rect = progressContainer.getBoundingClientRect();
+                    let percent = (e.clientX - rect.left) / rect.width;
+                    percent = Math.min(1, Math.max(0, percent));
+                    audio.currentTime = percent * audio.duration;
+                    progressBar.style.width = (percent * 100) + '%';
+                    timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+                }
+            });
+            window.addEventListener('mouseup', () => { isDraggingProgress = false; });
+
+            volumeSlider.addEventListener('input', () => {
+                isMuted = false;
+                audio.volume = volumeSlider.value;
+                updateVolumeUI();
+            });
+            volumeBtn.addEventListener('click', () => {
+                isMuted = !isMuted;
+                audio.volume = isMuted ? 0 : previousVolume;
+                volumeSlider.value = isMuted ? 0 : previousVolume;
+                updateVolumeUI();
+            });
+            audio.volume = 0.8;
+            volumeSlider.value = 0.8;
+            updateVolumeUI();
+
+            volumeBtn.addEventListener('mouseenter', () => volumeSliderContainer.classList.add('visible'));
+            volumeBtn.addEventListener('mouseleave', () => {
+                volumeHideTimeout = setTimeout(() => volumeSliderContainer.classList.remove('visible'), 300);
+            });
+            volumeSliderContainer.addEventListener('mouseenter', () => clearTimeout(volumeHideTimeout));
+            volumeSliderContainer.addEventListener('mouseleave', () => volumeSliderContainer.classList.remove('visible'));
+
+            playBtn.addEventListener('click', togglePlay);
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) loadSong(currentIndex - 1);
+                else loadSong(SONG_FILES.length - 1);
+                if (!isPlaying) togglePlay();
+            });
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < SONG_FILES.length - 1) loadSong(currentIndex + 1);
+                else loadSong(0);
+                if (!isPlaying) togglePlay();
+            });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !e.target.matches('input, button')) {
+                    e.preventDefault();
+                    togglePlay();
+                } else if (e.code === 'ArrowLeft' && !e.target.matches('input, button')) {
+                    e.preventDefault();
+                    prevBtn.click();
+                } else if (e.code === 'ArrowRight' && !e.target.matches('input, button')) {
+                    e.preventDefault();
+                    nextBtn.click();
+                }
+            });
+
+            buildPlaylistUI();
+            loadSong(0);
+        })();
+    </script>
+</body>
+</html>
